@@ -4,6 +4,7 @@ FastAPI server for DVRE.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator
@@ -18,13 +19,14 @@ from dvre.utils.types import ProjectManager as ResolveProjectManager
 
 log = logging.getLogger(__name__)
 
-_project_manager: ResolveProjectManager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
     log.info("Starting DVRE server...")
     app.state.project_manager = get_resolve().GetProjectManager()
+    app.state.build_lock = asyncio.Lock()
+
     yield
 
     log.info("Bye")
@@ -56,23 +58,26 @@ def create_router(app: FastAPI) -> APIRouter:
         Returns:
             Response with status code
         """
+        lock: asyncio.Lock = app.state.build_lock
 
-        try:
-            builder = OutputBuilder(_project_manager)
-            success = builder.build(config)
+        if lock.locked():
+            raise HTTPException(status_code=409, detail="Build already in progress")
 
-            if success:
-                return Response(status_code=200)
+        async with lock:
+            try:
+                builder = OutputBuilder(project_manager)
+                success = builder.build(config)
 
-            return Response(status_code=500)
+                if success:
+                    return Response(status_code=200)
 
-        except Exception as e:
-            log.error(f"Error creating timeline: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
-    
+                return Response(status_code=500)
+
+            except Exception as e:
+                log.error(f"Error creating timeline: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
     return router
-
-
 
 
 def create_app() -> FastAPI:
