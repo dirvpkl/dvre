@@ -52,4 +52,12 @@ python main.py
 
 The server will start on `http://127.0.0.1:8000`
 
-In `exapmle_config.json` `video_clips` must be located on correct location by index in list.
+## Build Config
+
+`/build` now accepts separate video and audio placement:
+
+- `video_clips` and `audio_clips`: clips to place on explicit timeline tracks.
+- each clip supports `track`, `timeline_start`, `start_frame`, `end_frame`.
+
+The server uses Resolve `AppendToTimeline([{clipInfo}])` with `trackIndex`, `recordFrame` and `mediaType`, so video and audio can be placed independently on different tracks.
+Track counts are derived automatically from the highest `track` number in the clip lists. Audio tracks are always created as `stereo`.

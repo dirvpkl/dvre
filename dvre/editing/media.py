@@ -6,12 +6,14 @@ from __future__ import annotations
 
 import logging
 
-from dvre.utils.config import VideoClip
+from dvre.utils.config import AudioClip, BaseClip, VideoClip
 from dvre.editing.resolve_client import ResolveClient
-from dvre.utils.types import MediaPoolItem
+from dvre.utils.types import MediaPoolClipInfo, MediaPoolItem, TimelineItem
 
 log = logging.getLogger(__name__)
 
+VIDEO_ONLY = 1
+AUDIO_ONLY = 2
 
 class MediaManager:
     """
@@ -27,49 +29,42 @@ class MediaManager:
         """
         self.client = client
 
-    def _import_media_item(self, path: str) -> MediaPoolItem:
+    def _place_clip(self, clip_config: BaseClip, media_type: int) -> TimelineItem:
         """
-        Import media to media pool.
+        Place a clip on the timeline.
 
         Args:
-            path: paths to the media files
-
-        Returns:
-            True if successful
+            clip_config: clip configuration
+            media_type: Resolve media type flag
         """
         try:
-            log.info(f"Importing: {path}...")
-            media_items = self.client.media_pool.ImportMedia([path])
-
-            if media_items:
-                log.debug(f"Imported successfully: {path}")
-                return media_items[0]
-
-            raise RuntimeError(f"Failed to import {path}")
-
-        except Exception as e:
-            raise RuntimeError(f"Error importing {path}: {e}")
-
-    def place_clip(self, clip_config: VideoClip):
-        """
-        Place a video clip on the timeline.
-        
-        Args:
-            clip_config: VideoClip configuration
-        """
-        try:
-
-            log.info(f"Placing video clip {clip_config.start_frame}-{clip_config.end_frame}")
-            _clip = self._import_media_item(clip_config.path)
-            _clip.SetMarkInOut(clip_config.start_frame, clip_config.end_frame)
-
-            result = self.client.media_pool.AppendToTimeline([_clip])
+            log.info(f"Placing media_type {media_type} | track={clip_config.track} | timeline_start={clip_config.timeline_start} | source={clip_config.start_frame}-{clip_config.end_frame}")
+            media_item: MediaPoolItem = self.client.media_pool.ImportMedia([clip_config.path])[0] # it will throw an error if needed
+            clip_info: MediaPoolClipInfo = {
+                "mediaPoolItem": media_item,
+                "startFrame": clip_config.start_frame,
+                "endFrame": clip_config.end_frame,
+                "mediaType": media_type,
+                "trackIndex": clip_config.track,
+                "recordFrame": clip_config.timeline_start
+            }
+            result = self.client.media_pool.AppendToTimeline([clip_info])
 
             if result:
-                log.debug(f"Video clip placed: {clip_config.path}")
-                return
+                log.debug(f"{clip_config.path} clip placed")
+                return result[0]
 
-            raise RuntimeError(f"Failed to place a video clip: {clip_config.path}")
+            raise RuntimeError(f"Failed to place clip: {clip_config.path}")
 
         except Exception as e:
-            raise RuntimeError(f"Error placing video clip {clip_config.path}: {e}")
+            raise RuntimeError(f"Error placing clip {clip_config.path}: {e}")
+
+    def place_video_clip(self, clip_config: VideoClip) -> TimelineItem:
+        """Place a video clip on the timeline."""
+
+        return self._place_clip(clip_config, VIDEO_ONLY)
+
+    def place_audio_clip(self, clip_config: AudioClip) -> TimelineItem:
+        """Place an audio clip on the timeline."""
+
+        return self._place_clip(clip_config, AUDIO_ONLY)

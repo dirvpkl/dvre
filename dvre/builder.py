@@ -55,11 +55,21 @@ class OutputBuilder:
             
             self.project_manager.create_project(config.project_name, config.settings.frame_rate)
 
-            self.timeline_manager.create_timeline(config.timeline_name)
+            timeline = self.timeline_manager.create_timeline(config.timeline_name)
 
-            for clip in config.clips:
-                self.media_manager.place_clip(clip)
-            log.info(f"Placed {len(config.clips)} video clips")
+            if config.video_clips:
+                self.timeline_manager.ensure_track_count(timeline, "video", max(clip.track for clip in config.video_clips))
+
+            if config.audio_clips:
+                self.timeline_manager.ensure_track_count(timeline, "audio", max(clip.track for clip in config.audio_clips))
+
+            for clip in config.video_clips:
+                self.media_manager.place_video_clip(clip)
+            log.info(f"Placed {len(config.video_clips)} video clips")
+
+            for clip in config.audio_clips:
+                self.media_manager.place_audio_clip(clip)
+            log.info(f"Placed {len(config.audio_clips)} audio clips")
 
             log.info(f"Saving the project before export...")
             self.project_manager.save_project()

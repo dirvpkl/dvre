@@ -37,11 +37,11 @@ def create_router() -> APIRouter:
     @router.post("/build", response_model=BuildResponse)
     async def build(config: BuildConfig) -> BuildResponse:
         """
-        Create a video from JSON configuration.
-        
-        Accepts a JSON config with project settings,
-        clips, export path, etc. Creates the complete timeline in
-        DaVinci Resolve and exports it to the target path.
+        Create a timeline from JSON configuration.
+
+        Accepts a JSON config with project settings, track layout,
+        video clips, audio clips and export path. Creates the complete
+        timeline in DaVinci Resolve and exports it to the target path.
 
         Args:
             config: BuildConfig from request body

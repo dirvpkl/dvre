@@ -5,6 +5,7 @@ Timeline management for DVRE.
 from __future__ import annotations
 
 import logging
+from typing import Literal
 
 from dvre.editing.resolve_client import ResolveClient
 from dvre.utils.types import Timeline
@@ -25,6 +26,20 @@ class TimelineManager:
             client: ResolveClient instance
         """
         self.client = client
+
+    @staticmethod
+    def ensure_track_count(timeline: Timeline, track_type: Literal['audio', 'video', 'subtitle'], required_tracks: int) -> None:
+        current_tracks = timeline.GetTrackCount(track_type)
+
+        for i in range(required_tracks - current_tracks):
+            next_index = current_tracks + i + 1
+            if track_type == "audio":
+                created = timeline.AddTrack(track_type, "stereo")
+            else:
+                created = timeline.AddTrack(track_type, None)
+
+            if not created:
+                raise RuntimeError(f"Failed to add {track_type} track {next_index}")
 
     def create_timeline(self, timeline_name: str) -> Timeline:
         # TODO: add configuration for resolution specification
