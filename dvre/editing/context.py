@@ -8,6 +8,7 @@ from dataclasses import dataclass
 import logging
 
 from dvre.utils.config import TimelineSettings
+from dvre.utils.errors import ResolveError
 from dvre.utils.types import MediaPool, Project, ProjectManager as ResolveProjectManager, Timeline
 
 log = logging.getLogger(__name__)
@@ -25,21 +26,20 @@ class BuildContext:
     @property
     def project(self) -> Project:
         if self._project is None:
-            raise RuntimeError("Project has not been created yet")
+            raise ResolveError("Project has not been created yet")
         return self._project
 
     @property
     def media_pool(self) -> MediaPool:
         if self._media_pool is None:
-            raise RuntimeError("Media pool is not available before project creation")
+            raise ResolveError("Media pool is not available before project creation")
         return self._media_pool
 
     @property
     def timeline(self) -> Timeline:
         if self._timeline is None:
-            raise RuntimeError("Timeline has not been created yet")
+            raise ResolveError("Timeline has not been created yet")
         return self._timeline
-
 
 
 class ContextFactory:
@@ -62,14 +62,11 @@ class ContextFactory:
         project = self.project_manager.CreateProject(project_name, None)
 
         if not project:
-            raise RuntimeError(f"Failed to create a project (check if project name already exists): {project_name}")
+            raise ResolveError(f"Failed to create project '{project_name}' (name may already exist)")
 
-        try:
-            project.SetSetting("timelineResolutionWidth", str(settings.width))
-            project.SetSetting("timelineResolutionHeight", str(settings.height))
-            project.SetSetting("timelineFrameRate", str(settings.frame_rate))
-        except Exception as e:
-            raise RuntimeError(f"Error configuring project {project_name}: {e}")
+        project.SetSetting("timelineResolutionWidth", str(settings.width))
+        project.SetSetting("timelineResolutionHeight", str(settings.height))
+        project.SetSetting("timelineFrameRate", str(settings.frame_rate))
 
         context._project = project
         context._media_pool = project.GetMediaPool()
@@ -81,10 +78,10 @@ class ContextFactory:
         timeline = context.media_pool.CreateEmptyTimeline(timeline_name)
 
         if timeline is None:
-            raise RuntimeError(f"Failed to create timeline: {timeline_name}")
+            raise ResolveError(f"Failed to create timeline '{timeline_name}'")
 
         if not context.project.SetCurrentTimeline(timeline):
-            raise RuntimeError(f"Failed to set current timeline: {timeline_name}")
+            raise ResolveError(f"Failed to set current timeline '{timeline_name}'")
 
         context._timeline = timeline
         log.info(f"Timeline '{timeline_name}' created successfully")

@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
 from dvre.utils.config import BuildConfig
+from dvre.utils.errors import ResolveError
 from dvre.utils.helper import get_resolve
 from dvre.utils.types import ProjectManager as ResolveProjectManager
 
@@ -33,12 +34,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_router(app: FastAPI) -> APIRouter:
-    """
-    Create API router with timeline endpoints.
-
-    Returns:
-        APIRouter instance
-    """
     router = APIRouter()
 
     ProjectManagerDep = Annotated[ResolveProjectManager, Depends(lambda: app.state.project_manager)]
@@ -51,12 +46,6 @@ def create_router(app: FastAPI) -> APIRouter:
         Accepts a JSON config with project settings, track layout,
         video clips, audio clips and export path. Creates the complete
         timeline in DaVinci Resolve and exports it to the target path.
-
-        Args:
-            config: BuildConfig from request body
-
-        Returns:
-            Response with status code
         """
         lock: asyncio.Lock = app.state.build_lock
 
@@ -65,28 +54,16 @@ def create_router(app: FastAPI) -> APIRouter:
 
         async with lock:
             try:
-                builder = OutputBuilder(project_manager)
-                success = builder.build(config)
-
-                if success:
-                    return Response(status_code=200)
-
-                return Response(status_code=500)
-
-            except Exception as e:
-                log.error(f"Error creating timeline: {e}")
+                OutputBuilder(project_manager).build(config)
+                return Response(status_code=200)
+            except ResolveError as e:
+                log.error(f"Resolve error: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
     return router
 
 
 def create_app() -> FastAPI:
-    """
-    Create and configure the FastAPI application.
-
-    Returns:
-        FastAPI application instance
-    """
     app = FastAPI(
         title="DVRE - DaVinci Resolve Video Editor",
         description="Server DVRE",
