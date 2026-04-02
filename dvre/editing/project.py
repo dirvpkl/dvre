@@ -1,57 +1,30 @@
 """
-Timeline management for DVRE.
+Project management for DVRE.
 """
 
 from __future__ import annotations
 
 import logging
 
-from dvre.editing.resolve_client import ResolveClient
-from dvre.utils.config import TimelineSettings
-from dvre.utils.types import Project, QuickExportRenderSettings
+from dvre.editing.context import BuildContext
+from dvre.utils.types import QuickExportRenderSettings
 
 log = logging.getLogger(__name__)
 
 
-class ProjectManager:
+class ProjectService:
     """
-    Manages project creation, saving, exporting and configuration in DaVinci Resolve.
+    Manages project persistence and export in DaVinci Resolve.
     """
 
-    def __init__(self, client: ResolveClient):
+    def __init__(self, context: BuildContext):
         """
-        Initialize ProjectManager.
+        Initialize ProjectService.
 
         Args:
-            client: ResolveClient instance
+            context: active build context
         """
-        self.client = client
-
-    def create_project(self, project_name: str, settings: TimelineSettings) -> Project:
-        """
-        Create a new project.
-
-        Args:
-            project_name: name of the project
-            settings: timeline settings for the project
-        """
-
-        log.info(f"Creating new project: {project_name}")
-        project = self.client.project_manager.CreateProject(project_name, None)
-
-        if not project:
-            raise RuntimeError(f"Failed to create a project (check if project name already exists): {project_name}")
-
-        try:
-            project.SetSetting("timelineResolutionWidth", str(settings.width))
-            project.SetSetting("timelineResolutionHeight", str(settings.height))
-            project.SetSetting("timelineFrameRate", str(settings.frame_rate))
-
-            log.info(f"Project created {project_name}")
-            return project
-
-        except Exception as e:
-            raise RuntimeError(f"Error configuring project {project_name}: {e}")
+        self.context = context
 
     def save_project(self):
         """
@@ -59,14 +32,14 @@ class ProjectManager:
         """
 
         log.info(f"Saving current project...")
-        project = self.client.project_manager.SaveProject()
+        is_saved = self.context.project_manager.SaveProject()
         try:
 
-            if project:
+            if is_saved:
                 log.info(f"Current project saved")
                 return
 
-            raise RuntimeError(f"Failed to save current project: {project}")
+            raise RuntimeError(f"Failed to save current project: {is_saved}")
 
         except Exception as e:
             raise RuntimeError(f"Error saving current project: {e}")
@@ -87,4 +60,4 @@ class ProjectManager:
             "VideoQuality": "Best",
             "EnableUpload": False
         }
-        self.client.project.RenderWithQuickExport("ProRes 422 HQ", settings)
+        self.context.project.RenderWithQuickExport("ProRes 422 HQ", settings)

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from fusionscript import (
-        Fusion,
         MediaPool,
         MediaPoolClipInfo,
         MediaPoolItem,
@@ -18,7 +17,6 @@ if TYPE_CHECKING:
         QuickExportRenderSettings
     )
 else:
-    Fusion = object
     MediaPool = object
     MediaPoolClipInfo = object
     MediaPoolItem = object

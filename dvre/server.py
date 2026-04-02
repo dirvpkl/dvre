@@ -13,11 +13,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
 from dvre.utils.config import BuildConfig
-from dvre.editing.resolve_client import ResolveClient
+from dvre.utils.helper import get_resolve
+from dvre.utils.types import ProjectManager as ResolveProjectManager
 
 log = logging.getLogger(__name__)
 
-_resolve_client: ResolveClient
+_project_manager: ResolveProjectManager
 
 
 def create_router() -> APIRouter:
@@ -46,7 +47,7 @@ def create_router() -> APIRouter:
         """
 
         try:
-            builder = OutputBuilder(_resolve_client)
+            builder = OutputBuilder(_project_manager)
             success = builder.build(config)
 
             if success:
@@ -64,10 +65,10 @@ def create_router() -> APIRouter:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
-    global _resolve_client
+    global _project_manager
     
     log.info("Starting DVRE server...")
-    _resolve_client = ResolveClient()
+    _project_manager = get_resolve().GetProjectManager()
     
     yield
     

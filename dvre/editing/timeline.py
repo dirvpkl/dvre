@@ -7,28 +7,27 @@ from __future__ import annotations
 import logging
 from typing import Literal
 
-from dvre.editing.resolve_client import ResolveClient
-from dvre.utils.types import Timeline
+from dvre.editing.context import BuildContext
 
 log = logging.getLogger(__name__)
 
 
-class TimelineManager:
+class TimelineService:
     """
-    Manages timeline creation and configuration in DaVinci Resolve.
+    Manages timeline track configuration in DaVinci Resolve.
     """
     
-    def __init__(self, client: ResolveClient):
+    def __init__(self, context: BuildContext):
         """
-        Initialize TimelineManager.
+        Initialize TimelineService.
         
         Args:
-            client: ResolveClient instance
+            context: active build context
         """
-        self.client = client
+        self.context = context
 
-    @staticmethod
-    def ensure_track_count(timeline: Timeline, track_type: Literal['audio', 'video', 'subtitle'], required_tracks: int) -> None:
+    def ensure_track_count(self, track_type: Literal['audio', 'video', 'subtitle'], required_tracks: int) -> None:
+        timeline = self.context.timeline
         current_tracks = timeline.GetTrackCount(track_type)
 
         for i in range(required_tracks - current_tracks):
@@ -40,27 +39,3 @@ class TimelineManager:
 
             if not created:
                 raise RuntimeError(f"Failed to add {track_type} track {next_index}")
-
-    def create_timeline(self, timeline_name: str) -> Timeline:
-        """
-        Create a new timeline with the given configuration.
-
-        Args:
-            timeline_name: timeline name
-
-        Returns:
-            Timeline object
-        """
-
-        # Create new timeline
-        log.info(f"Creating timeline: {timeline_name}")
-        timeline = self.client.media_pool.CreateEmptyTimeline(timeline_name)
-
-        if timeline is None:
-            raise RuntimeError(f"Failed to create timeline: {timeline_name}")
-
-        if not self.client.project.SetCurrentTimeline(timeline):
-            raise RuntimeError(f"Failed to set current timeline: {timeline_name}")
-
-        log.info(f"Timeline '{timeline_name}' created successfully on path")
-        return timeline

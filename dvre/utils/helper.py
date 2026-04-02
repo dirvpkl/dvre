@@ -1,18 +1,17 @@
+import logging
 import os
 import sys
 import time
 
-import logging
-
 import psutil
 from dotenv import load_dotenv
+
 from dvre.utils.types import Resolve
 
 log = logging.getLogger(__name__)
 
 load_dotenv()
 
-# Default paths for DaVinci Resolve
 RESOLVE_EXE = os.getenv(
     "RESOLVE_EXE",
     r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
@@ -31,9 +30,9 @@ RESOLVE_LIB = os.getenv(
 
 def ensure_resolve_running() -> None:
     """Ensure DaVinci Resolve is running, start it if not."""
-    for proc in psutil.process_iter(['name']):
+    for proc in psutil.process_iter(["name"]):
         try:
-            if proc.info['name'] == "Resolve.exe":
+            if proc.info["name"] == "Resolve.exe":
                 log.info("Resolve already running")
                 return
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -45,21 +44,9 @@ def ensure_resolve_running() -> None:
 
 
 def get_resolve(timeout: int = 120) -> Resolve:
-    """
-    Connect to DaVinci Resolve scripting API.
-
-    Args:
-        timeout: Maximum time to wait for Resolve to start (seconds)
-
-    Returns:
-        Resolve scripting object
-
-    Raises:
-        TimeoutError: If Resolve doesn't start within timeout
-    """
+    """Connect to the DaVinci Resolve scripting API."""
     ensure_resolve_running()
 
-    # Add Resolve API paths to sys.path
     if RESOLVE_API not in sys.path:
         sys.path.append(RESOLVE_API)
 
