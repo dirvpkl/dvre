@@ -59,5 +59,8 @@ class TimelineManager:
         if timeline is None:
             raise RuntimeError(f"Failed to create timeline: {timeline_name}")
 
+        if not self.client.project.SetCurrentTimeline(timeline):
+            raise RuntimeError(f"Failed to set current timeline: {timeline_name}")
+
         log.info(f"Timeline '{timeline_name}' created successfully on path")
         return timeline
