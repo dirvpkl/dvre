@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# pyenv
+.python-version
+
+# Environments
+.venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# uv
+uv.lock
+
+# Logs
+logs/
+*.log

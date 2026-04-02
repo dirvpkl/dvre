@@ -1,0 +1,25 @@
+{
+  "project_name": "My Video Project",
+  "timeline_name": "Main Timeline",
+  "settings": {
+    "frame_rate": 60
+  },
+  "clips": [
+    {
+      "path": "C:/Videos/intro.mp4",
+      "start_frame": 0,
+      "end_frame": 240
+    },
+    {
+      "path": "C:/Videos/main.mp4",
+      "start_frame": 0,
+      "end_frame": 500
+    },
+    {
+      "path": "C:/Videos/overlay.png",
+      "start_frame": 200,
+      "end_frame": 500
+    }
+  ],
+  "export_path": "C:/Videos/output.mp4"
+}
