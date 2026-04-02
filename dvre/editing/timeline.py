@@ -42,14 +42,12 @@ class TimelineManager:
                 raise RuntimeError(f"Failed to add {track_type} track {next_index}")
 
     def create_timeline(self, timeline_name: str) -> Timeline:
-        # TODO: add configuration for resolution specification
-        # typically 1920x1080
         """
         Create a new timeline with the given configuration.
-        
+
         Args:
             timeline_name: timeline name
-            
+
         Returns:
             Timeline object
         """
@@ -57,7 +55,7 @@ class TimelineManager:
         # Create new timeline
         log.info(f"Creating timeline: {timeline_name}")
         timeline = self.client.media_pool.CreateEmptyTimeline(timeline_name)
-        
+
         if timeline is None:
             raise RuntimeError(f"Failed to create timeline: {timeline_name}")
 

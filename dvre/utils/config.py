@@ -26,7 +26,10 @@ class AudioClip(BaseClip):
 
 
 class TimelineSettings(BaseModel):
+    """Timeline resolution and format settings."""
 
+    width: int = Field(1920, gt=0, description="Timeline width in pixels")
+    height: int = Field(1080, gt=0, description="Timeline height in pixels")
     frame_rate: int = Field(60, gt=0, description="Frame rate (fps)")
 
 

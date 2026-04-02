@@ -54,4 +54,4 @@ class ResolveClient:
 
     @property
     def timeline(self) -> Timeline:
-        return self.project.GetTimelineByIndex(1)
+        return self.project.GetCurrentTimeline()

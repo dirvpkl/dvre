@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 VIDEO_ONLY = 1
 AUDIO_ONLY = 2
+TIMELINE_START_TIMECODE = 86400 # DaVinci starts timeline at frame 86400
 
 class MediaManager:
     """
@@ -46,7 +47,7 @@ class MediaManager:
                 "endFrame": clip_config.end_frame,
                 "mediaType": media_type,
                 "trackIndex": clip_config.track,
-                "recordFrame": clip_config.timeline_start
+                "recordFrame": TIMELINE_START_TIMECODE + clip_config.timeline_start
             }
             result = self.client.media_pool.AppendToTimeline([clip_info])
 

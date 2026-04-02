@@ -2,6 +2,8 @@
   "project_name": "My Video Project",
   "timeline_name": "Main Timeline",
   "settings": {
+    "width": 1920,
+    "height": 1080,
     "frame_rate": 60
   },
   "video_clips": [

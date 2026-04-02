@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 
 from dvre.editing.resolve_client import ResolveClient
+from dvre.utils.config import TimelineSettings
 from dvre.utils.types import Project, QuickExportRenderSettings
 
 log = logging.getLogger(__name__)
@@ -26,29 +27,31 @@ class ProjectManager:
         """
         self.client = client
 
-    def create_project(self, project_name: str, frame_rate: int) -> Project:
+    def create_project(self, project_name: str, settings: TimelineSettings) -> Project:
         """
         Create a new project.
 
         Args:
             project_name: name of the project
-            frame_rate: fps for the project and its timelines
+            settings: timeline settings for the project
         """
 
         log.info(f"Creating new project: {project_name}")
         project = self.client.project_manager.CreateProject(project_name, None)
-        project.SetSetting("timelineFrameRate", str(frame_rate))
+
+        if not project:
+            raise RuntimeError(f"Failed to create a project (check if project name already exists): {project_name}")
 
         try:
+            project.SetSetting("timelineResolutionWidth", str(settings.width))
+            project.SetSetting("timelineResolutionHeight", str(settings.height))
+            project.SetSetting("timelineFrameRate", str(settings.frame_rate))
 
-            if project:
-                log.info(f"Project created {project_name}")
-                return project
-
-            raise RuntimeError(f"Failed to create a project ({project_name}): {project}")
+            log.info(f"Project created {project_name}")
+            return project
 
         except Exception as e:
-            raise RuntimeError(f"Error creating project (check is that project name already exists) {project_name}: {e}")
+            raise RuntimeError(f"Error configuring project {project_name}: {e}")
 
     def save_project(self):
         """

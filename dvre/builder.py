@@ -52,9 +52,8 @@ class OutputBuilder:
         try:
             log.info(f"got config: {config}")
             log.info(f"Starting timeline build: {config.timeline_name}")
-            
-            self.project_manager.create_project(config.project_name, config.settings.frame_rate)
 
+            self.project_manager.create_project(config.project_name, config.settings)
             timeline = self.timeline_manager.create_timeline(config.timeline_name)
 
             if config.video_clips:
