@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
-from fastapi import APIRouter, FastAPI, HTTPException, Response
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
@@ -20,18 +20,29 @@ log = logging.getLogger(__name__)
 
 _project_manager: ResolveProjectManager
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan manager."""
+    log.info("Starting DVRE server...")
+    app.state.project_manager = get_resolve().GetProjectManager()
+    yield
 
-def create_router() -> APIRouter:
+    log.info("Bye")
+
+
+def create_router(app: FastAPI) -> APIRouter:
     """
     Create API router with timeline endpoints.
-    
+
     Returns:
         APIRouter instance
     """
     router = APIRouter()
 
+    ProjectManagerDep = Annotated[ResolveProjectManager, Depends(lambda: app.state.project_manager)]
+
     @router.post("/build", status_code=200)
-    async def build(config: BuildConfig) -> Response:
+    async def build(config: BuildConfig, project_manager: ProjectManagerDep) -> Response:
         """
         Create a timeline from JSON configuration.
 
@@ -41,7 +52,7 @@ def create_router() -> APIRouter:
 
         Args:
             config: BuildConfig from request body
-            
+
         Returns:
             Response with status code
         """
@@ -62,23 +73,12 @@ def create_router() -> APIRouter:
     return router
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Application lifespan manager."""
-    global _project_manager
-    
-    log.info("Starting DVRE server...")
-    _project_manager = get_resolve().GetProjectManager()
-    
-    yield
-    
-    log.info("Bye")
 
 
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
-    
+
     Returns:
         FastAPI application instance
     """
@@ -88,8 +88,7 @@ def create_app() -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
-    
-    # CORS middleware
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -97,9 +96,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
-    # Include router
-    app.include_router(create_router())
+
+    app.include_router(create_router(app))
 
     return app
 
