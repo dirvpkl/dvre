@@ -9,7 +9,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Response
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
@@ -33,13 +33,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     log.info("Bye")
 
 
-def create_router(app: FastAPI) -> APIRouter:
+def get_project_manager(request: Request) -> ResolveProjectManager:
+    return request.app.state.project_manager
+
+
+ProjectManagerDep = Annotated[ResolveProjectManager, Depends(get_project_manager)]
+
+
+def create_router() -> APIRouter:
     router = APIRouter()
 
-    ProjectManagerDep = Annotated[ResolveProjectManager, Depends(lambda: app.state.project_manager)]
-
     @router.post("/build", status_code=200)
-    async def build(config: BuildConfig, project_manager: ProjectManagerDep) -> Response:
+    async def build(request: Request, config: BuildConfig, project_manager: ProjectManagerDep) -> Response:
         """
         Create a timeline from JSON configuration.
 
@@ -47,7 +52,7 @@ def create_router(app: FastAPI) -> APIRouter:
         video clips, audio clips and export path. Creates the complete
         timeline in DaVinci Resolve and exports it to the target path.
         """
-        lock: asyncio.Lock = app.state.build_lock
+        lock: asyncio.Lock = request.app.state.build_lock
 
         if lock.locked():
             raise HTTPException(status_code=409, detail="Build already in progress")
@@ -79,7 +84,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(create_router(app))
+    app.include_router(create_router())
 
     return app
 
