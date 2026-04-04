@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 class BaseClip(BaseModel):
     """Common clip placement settings."""
 
-    path: str = Field(..., description="Absolute path to the video file")
-    track: int = Field(1, ge=1, description="Target track number in the timeline (1-based)")
+    path: str = Field(..., description="Absolute path to the media file")
+    track: int = Field(1, ge=1, description="Target track number (1-based)")
     timeline_start: int = Field(..., ge=0, description="Frame on the timeline where the clip starts")
     start_frame: int = Field(..., ge=0, description="Start frame in the source clip")
     end_frame: int = Field(..., ge=0, description="End frame in the source clip")
@@ -36,7 +36,7 @@ class TimelineSettings(BaseModel):
 class BuildConfig(BaseModel):
     """Main configuration for final timeline creation."""
 
-    project_name: str = Field(..., description="Name of the DaVinci Resolve project (UNIQUE)")
+    project_name: str = Field(..., description="Name of the DaVinci Resolve project (must be unique)")
     timeline_name: str = Field(..., description="Name of the timeline to create")
     settings: TimelineSettings = Field(default_factory=TimelineSettings, description="Timeline settings")
     video_clips: list[VideoClip] = Field(default_factory=list, description="Video clips to add")

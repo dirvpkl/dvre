@@ -1,5 +1,5 @@
 """
-Builder - orchestrates managers from config.
+Builder - orchestrates services from config.
 """
 
 from __future__ import annotations
