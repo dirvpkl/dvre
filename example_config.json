@@ -8,6 +8,7 @@
   },
   "video_clips": [
     {
+      "id": "intro",
       "path": "C:/Videos/intro.mp4",
       "track": 1,
       "timeline_start": 0,
@@ -15,6 +16,7 @@
       "end_frame": 240
     },
     {
+      "id": "main",
       "path": "C:/Videos/main.mp4",
       "track": 1,
       "timeline_start": 240,
@@ -22,6 +24,7 @@
       "end_frame": 500
     },
     {
+      "id": "broll",
       "path": "C:/Videos/broll.mp4",
       "track": 2,
       "start_frame": 200,
@@ -43,6 +46,12 @@
       "timeline_start": 0,
       "start_frame": 0,
       "end_frame": 1200
+    }
+  ],
+  "fusion_clips": [
+    {
+      "clip_ids": ["main", "broll"],
+      "comp_path": "C:/Comps/overlay.comp"
     }
   ],
   "export_path": "C:/Videos/output.mp4"
