@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager."""
     log.info("Starting DVRE server...")
-    app.state.project_manager = get_resolve().GetProjectManager()
     app.state.build_lock = asyncio.Lock()
 
     yield
@@ -33,8 +32,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     log.info("Bye")
 
 
-def get_project_manager(request: Request) -> ResolveProjectManager:
-    return request.app.state.project_manager
+def get_project_manager(_: Request) -> ResolveProjectManager:
+    # Resolve remote objects are not stable across long-lived server uptime,
+    # so fetch a fresh ProjectManager for each request.
+    return get_resolve().GetProjectManager()
 
 
 ProjectManagerDep = Annotated[ResolveProjectManager, Depends(get_project_manager)]
@@ -64,6 +65,9 @@ def create_router() -> APIRouter:
             except ResolveError as e:
                 log.error(f"Resolve error: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
+            except Exception:
+                log.exception("Unexpected build failure")
+                raise HTTPException(status_code=500, detail="Unexpected build failure")
 
     return router
 
