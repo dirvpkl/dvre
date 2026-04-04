@@ -13,7 +13,7 @@ from dvre.editing.media import MediaService
 from dvre.editing.project import ProjectService
 from dvre.editing.timeline import TimelineService
 from dvre.utils.config import BuildConfig
-from dvre.utils.types import ProjectManager as ResolveProjectManager, TimelineItem
+from dvre.utils.types import ProjectManager as ResolveProjectManager, TimelineItem, VIDEO_ONLY, AUDIO_ONLY
 
 log = logging.getLogger(__name__)
 
@@ -49,13 +49,15 @@ class OutputBuilder:
         placed_items: dict[str, TimelineItem] = {}
 
         for clip in config.video_clips:
-            item = media_service.place_video_clip(clip)
+            media_item = media_service.import_media(clip.path)
+            item = timeline_service.place_clip(media_item, clip, VIDEO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
         log.info(f"Placed {len(config.video_clips)} video clips")
 
         for clip in config.audio_clips:
-            item = media_service.place_audio_clip(clip)
+            media_item = media_service.import_media(clip.path)
+            item = timeline_service.place_clip(media_item, clip, AUDIO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
         log.info(f"Placed {len(config.audio_clips)} audio clips")
