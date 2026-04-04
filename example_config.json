@@ -50,7 +50,8 @@
   ],
   "fusion_clips": [
     {
-      "clip_ids": ["main", "broll"]
+      "clip_ids": ["main", "broll"],
+      "comp_path": "C:/Comps/overlay.comp"
     }
   ],
   "export_path": "C:/Videos/output.mp4"

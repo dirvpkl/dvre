@@ -35,9 +35,10 @@ class TimelineSettings(BaseModel):
 
 
 class FusionClip(BaseModel):
-    """Group of clip IDs to merge into a single Fusion clip."""
+    """Group of clip IDs to merge into a single Fusion clip with an optional Fusion composition."""
 
     clip_ids: list[str] = Field(..., min_length=2, description="IDs of clips to combine into a Fusion clip (min 2)")
+    comp_path: str | None = Field(None, description="Absolute path to a .comp file to import into the Fusion clip")
 
 
 class BuildConfig(BaseModel):
