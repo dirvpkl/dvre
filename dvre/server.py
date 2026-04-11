@@ -52,23 +52,19 @@ async def build(request: Request, config: BuildConfig, project_manager = Depends
     """
     lock: asyncio.Lock = request.app.state.build_lock
 
-    try:
-        await asyncio.wait_for(lock.acquire(), timeout=0)
-    except asyncio.TimeoutError:
+    if lock.locked():
         raise HTTPException(status_code=409, detail="Build already in progress")
 
-    try:
-        OutputBuilder(project_manager).build(config)
-        return Response(status_code=200)
-    except ResolveError as e:
-        log.error(f"Resolve error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    except Exception:
-        log.exception("Unexpected build failure")
-        raise HTTPException(status_code=500, detail="Unexpected build failure")
-    finally:
-        lock.release()
-
+    async with lock:
+        try:
+            OutputBuilder(project_manager).build(config)
+            return Response(status_code=200)
+        except ResolveError as e:
+            log.error(f"Resolve error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            log.exception("Unexpected build failure")
+            raise HTTPException(status_code=500, detail="Unexpected build failure")
 
 def create_app() -> FastAPI:
     app = FastAPI(
