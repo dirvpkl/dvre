@@ -28,7 +28,7 @@ def main() -> None:
     port = int(os.getenv("PORT", "8000"))
     
     log.info(f"Starting DVRE server on {host}:{port}")
-    log.info("API documentation available at http://localhost:8000/docs")
+    log.info(f"API documentation available at http://{host}:{port}/docs")
     
     from dvre.server import create_app
     
