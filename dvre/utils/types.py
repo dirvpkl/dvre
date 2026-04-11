@@ -18,7 +18,7 @@ if TYPE_CHECKING:
         Timeline,
         TimelineClipInfo,
         TimelineItem,
-        QuickExportRenderSettings
+        RenderSettings
     )
 else:
     MediaPool = object
@@ -30,4 +30,4 @@ else:
     Timeline = object
     TimelineClipInfo = object
     TimelineItem = object
-    QuickExportRenderSettings = object
+    RenderSettings = object
