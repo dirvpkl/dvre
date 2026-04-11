@@ -38,38 +38,36 @@ def get_project_manager(_: Request) -> ResolveProjectManager:
     return get_resolve().GetProjectManager()
 
 
-ProjectManagerDep = Annotated[ResolveProjectManager, Depends(get_project_manager)]
+router = APIRouter()
 
+# async def because of lock, the actual build process is sync because of Resolve API
+@router.post("/build", status_code=200)
+async def build(request: Request, config: BuildConfig, project_manager = Depends(get_project_manager)) -> Response:
+    """
+    Create a timeline from JSON configuration.
 
-def create_router() -> APIRouter:
-    router = APIRouter()
+    Accepts a JSON config with project settings, track layout,
+    video clips, audio clips and export path. Creates the complete
+    timeline in DaVinci Resolve and exports it to the target path.
+    """
+    lock: asyncio.Lock = request.app.state.build_lock
 
-    @router.post("/build", status_code=200)
-    async def build(request: Request, config: BuildConfig, project_manager: ProjectManagerDep) -> Response:
-        """
-        Create a timeline from JSON configuration.
+    try:
+        await asyncio.wait_for(lock.acquire(), timeout=0)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=409, detail="Build already in progress")
 
-        Accepts a JSON config with project settings, track layout,
-        video clips, audio clips and export path. Creates the complete
-        timeline in DaVinci Resolve and exports it to the target path.
-        """
-        lock: asyncio.Lock = request.app.state.build_lock
-
-        if lock.locked():
-            raise HTTPException(status_code=409, detail="Build already in progress")
-
-        async with lock:
-            try:
-                OutputBuilder(project_manager).build(config)
-                return Response(status_code=200)
-            except ResolveError as e:
-                log.error(f"Resolve error: {e}")
-                raise HTTPException(status_code=500, detail=str(e))
-            except Exception:
-                log.exception("Unexpected build failure")
-                raise HTTPException(status_code=500, detail="Unexpected build failure")
-
-    return router
+    try:
+        OutputBuilder(project_manager).build(config)
+        return Response(status_code=200)
+    except ResolveError as e:
+        log.error(f"Resolve error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        log.exception("Unexpected build failure")
+        raise HTTPException(status_code=500, detail="Unexpected build failure")
+    finally:
+        lock.release()
 
 
 def create_app() -> FastAPI:
@@ -77,7 +75,7 @@ def create_app() -> FastAPI:
         title="DVRE - DaVinci Resolve Video Editor",
         description="Server DVRE",
         version="0.1.0",
-        lifespan=lifespan,
+        lifespan=lifespan
     )
 
     app.add_middleware(
@@ -88,7 +86,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(create_router())
+    app.include_router(router)
 
     return app
 
