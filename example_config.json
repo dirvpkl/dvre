@@ -54,5 +54,6 @@
       "comp_path": "C:/Comps/overlay.comp"
     }
   ],
-  "export_path": "C:/Videos/output.mp4"
+  "export_path": "C:/Videos/output.mp4",
+  "save_project": false
 }

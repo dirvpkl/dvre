@@ -51,3 +51,4 @@ class BuildConfig(BaseModel):
     audio_clips: list[AudioClip] = Field(default_factory=list, description="Audio clips to add")
     fusion_clips: list[FusionClip] = Field(default_factory=list, description="Groups of clips to merge into Fusion clips")
     export_path: str = Field(..., description="Absolute path to the export video file")
+    save_project: bool = Field(True, description="Whether to save the project in DaVinci library")

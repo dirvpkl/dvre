@@ -21,7 +21,7 @@ class ProjectService:
     def __init__(self, context: BuildContext):
         self.context = context
 
-    def save_project(self) -> None:
+    def save_current_project(self) -> None:
         log.info("Saving current project...")
 
         if not self.context.project_manager.SaveProject():
