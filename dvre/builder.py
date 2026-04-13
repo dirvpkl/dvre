@@ -70,7 +70,8 @@ class OutputBuilder:
         if config.fusion_clips:
             log.info(f"Created {len(config.fusion_clips)} fusion clips")
 
-        project_service.save_project()
+        if config.save_project:
+            project_service.save_current_project()
 
         export_path = Path(config.export_path)
         project_service.export_project(str(export_path.parent), str(export_path.stem), config.settings.width, config.settings.height, config.settings.frame_rate)
