@@ -8,6 +8,7 @@ import logging
 
 from dvre.editing.context import BuildContext
 from dvre.utils.errors import ResolveError
+from dvre.utils.helper import VideoValidator
 from dvre.utils.types import MediaPoolItem
 
 log = logging.getLogger(__name__)
@@ -21,9 +22,12 @@ class MediaService:
     def __init__(self, context: BuildContext):
         self.context = context
 
-    def import_media(self, path: str) -> MediaPoolItem:
+
+    def import_media(self, path: str, source_validator: VideoValidator) -> MediaPoolItem:
         """Import a media file into the Media Pool and return the created item."""
         log.info(f"Importing media: {path}")
+
+        source_validator.assert_video_meta(path)
 
         result = self.context.media_pool.ImportMedia([path])
         if not result:

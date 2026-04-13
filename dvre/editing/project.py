@@ -29,7 +29,7 @@ class ProjectService:
 
         log.info("Project saved")
 
-    def export_project(self, export_path: str, export_name: str) -> None:
+    def export_project(self, export_path: str, export_name: str, width: int, height: int, frame_rate: float) -> None:
         self.context.project.SetCurrentRenderFormatAndCodec("MP4", "H264")
         settings: RenderSettings = {
             "SelectAllFrames": True,
@@ -41,11 +41,11 @@ class ProjectService:
             "UniqueFilenameStyle": 1,               # 0=Prefix, 1=Suffix
             "ReplaceExistingFilesInPlace": False,
             "ClipStartFrame": 0,
-            "TimelineStartTimecode": "01:00:00:00",
+            "TimelineStartTimecode": "01:00:00:00",     # stock value
 
-            "FormatWidth": 1920, # TODO: make dynamic
-            "FormatHeight": 1080, # TODO: make dynamic
-            "FrameRate": 60.0, # TODO: make dynamic
+            "FormatWidth": width,
+            "FormatHeight": height,
+            "FrameRate": frame_rate,
             "PixelAspectRatio": "square",
 
             "ExportVideo": True,

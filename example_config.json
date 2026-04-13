@@ -4,7 +4,7 @@
   "settings": {
     "width": 1920,
     "height": 1080,
-    "frame_rate": 60
+    "frame_rate": 60.0
   },
   "video_clips": [
     {

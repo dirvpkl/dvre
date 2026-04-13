@@ -4,9 +4,10 @@ Server for creating timelines via DaVinci Resolve scripting API.
 
 ## Requirements
 
-- DaVinci Resolve (Studio recommended for full API access)
-- Python ==3.10
-- Windows (for fusionscript.dll support)
+- **DaVinci Resolve Studio**
+- **Python** ==3.10
+- **Windows** (for fusionscript.dll support)
+- **ffprobe** (required for `validate_media` to validate videos before load in DaVinci mediapool) — Ensure `ffprobe` is installed and available in your system PATH, or set the `FFPROBE_PATH` environment variable to its location.
 
 ## Installation
 
@@ -36,6 +37,9 @@ RESOLVE_SCRIPT_LIB=C:\Program Files\Blackmagic Design\DaVinci Resolve\fusionscri
 # Server settings
 HOST=127.0.0.1
 PORT=8000
+
+# FFprobe
+FFPROBE_PATH=ffprobe
 ```
 
 ## Usage

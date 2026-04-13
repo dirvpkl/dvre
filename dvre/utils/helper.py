@@ -3,6 +3,10 @@ import os
 import sys
 import time
 
+import json
+import subprocess
+from dataclasses import dataclass
+
 import psutil
 from dotenv import load_dotenv
 
@@ -65,3 +69,46 @@ def get_resolve(timeout: int = 120) -> Resolve:
         log.debug("Waiting for Resolve...")
 
     raise TimeoutError(f"Resolve didn't start in {timeout} seconds")
+
+
+def _get_video_meta(path: str) -> dict[str, int | float]:
+    result = subprocess.run(
+        [
+            "ffprobe", "-v", "quiet",
+            "-print_format", "json",
+            "-show_streams",
+            "-select_streams", "v:0",
+            path,
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    stream = json.loads(result.stdout)["streams"][0]
+    num, den = map(int, stream["r_frame_rate"].split("/"))
+
+    return {
+        "width": stream["width"],
+        "height": stream["height"],
+        "fps": num / den,
+    }
+
+
+@dataclass
+class VideoValidator:
+    width: int
+    height: int
+    fps: float
+    fps_tolerance: float = 0.01
+
+    def assert_video_meta(self, path: str) -> None:
+        meta = _get_video_meta(path)
+        if (
+            meta["width"] != self.width
+            or meta["height"] != self.height
+            or abs(meta["fps"] - self.fps) > self.fps_tolerance
+        ):
+            raise ValueError(
+                f"Video meta mismatch: expected {self.width}x{self.height}@{self.fps}fps, "
+                f"got {meta['width']}x{meta['height']}@{meta['fps']:.4f}fps — '{path}'"
+            )

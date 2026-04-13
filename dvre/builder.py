@@ -13,6 +13,7 @@ from dvre.editing.media import MediaService
 from dvre.editing.project import ProjectService
 from dvre.editing.timeline import TimelineService
 from dvre.utils.config import BuildConfig
+from dvre.utils.helper import VideoValidator
 from dvre.utils.types import ProjectManager as ResolveProjectManager, TimelineItem, VIDEO_ONLY, AUDIO_ONLY
 
 log = logging.getLogger(__name__)
@@ -48,15 +49,17 @@ class OutputBuilder:
 
         placed_items: dict[str, TimelineItem] = {}
 
+        _vv = VideoValidator(config.settings.width, config.settings.height, config.settings.frame_rate)
+
         for clip in config.video_clips:
-            media_item = media_service.import_media(clip.path)
+            media_item = media_service.import_media(clip.path, _vv)
             item = timeline_service.place_clip(media_item, clip, VIDEO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
         log.info(f"Placed {len(config.video_clips)} video clips")
 
         for clip in config.audio_clips:
-            media_item = media_service.import_media(clip.path)
+            media_item = media_service.import_media(clip.path, _vv)
             item = timeline_service.place_clip(media_item, clip, AUDIO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
@@ -70,6 +73,6 @@ class OutputBuilder:
         project_service.save_project()
 
         export_path = Path(config.export_path)
-        project_service.export_project(str(export_path.parent), str(export_path.stem))
+        project_service.export_project(str(export_path.parent), str(export_path.stem), config.settings.width, config.settings.height, config.settings.frame_rate)
 
         log.info(f"Export complete: {config.export_path}")
