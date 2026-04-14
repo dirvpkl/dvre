@@ -56,7 +56,8 @@ class OutputBuilder:
             item = timeline_service.place_clip(media_item, clip, VIDEO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
-        log.info(f"Placed {len(config.video_clips)} video clips")
+        log.info(f"Placed {len(placed_items)} video clips")
+
         _av = AudioValidator()
 
         for clip in config.audio_clips:
@@ -64,8 +65,12 @@ class OutputBuilder:
             item = timeline_service.place_clip(media_item, clip, AUDIO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
-        log.info(f"Placed {len(config.audio_clips)} audio clips")
+        log.info(f"Placed {len(placed_items)} audio+video clips")
 
+
+        # TODO: add smart splitter
+        # TODO: add zoom in on every beat
+        log.debug(f"placed_items keys: {list(placed_items.keys())[:10]}")
         for fusion_clip in config.fusion_clips:
             fusion_service.create_fusion_clip(fusion_clip, placed_items)
         if config.fusion_clips:
