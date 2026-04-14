@@ -6,6 +6,7 @@ import time
 import json
 import subprocess
 from dataclasses import dataclass
+from typing import Protocol
 
 import psutil
 from dotenv import load_dotenv
@@ -101,7 +102,7 @@ class VideoValidator:
     fps: float
     fps_tolerance: float = 0.01
 
-    def assert_video_meta(self, path: str) -> None:
+    def assert_meta(self, path: str) -> None:
         meta = _get_video_meta(path)
         if (
             meta["width"] != self.width
@@ -112,3 +113,12 @@ class VideoValidator:
                 f"Video meta mismatch: expected {self.width}x{self.height}@{self.fps}fps, "
                 f"got {meta['width']}x{meta['height']}@{meta['fps']:.4f}fps — '{path}'"
             )
+
+@dataclass
+class AudioValidator:
+    # currently we don't need to validate audio meta, but we can add it later if needed
+    def assert_meta(self, path: str) -> None: ...
+
+
+class MediaValidator(Protocol):
+    def assert_meta(self, path: str) -> None: ...

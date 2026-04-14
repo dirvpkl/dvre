@@ -13,7 +13,7 @@ from dvre.editing.media import MediaService
 from dvre.editing.project import ProjectService
 from dvre.editing.timeline import TimelineService
 from dvre.utils.config import BuildConfig
-from dvre.utils.helper import VideoValidator
+from dvre.utils.helper import VideoValidator, AudioValidator
 from dvre.utils.types import ProjectManager as ResolveProjectManager, TimelineItem, VIDEO_ONLY, AUDIO_ONLY
 
 log = logging.getLogger(__name__)
@@ -57,9 +57,10 @@ class OutputBuilder:
             if clip.id is not None:
                 placed_items[clip.id] = item
         log.info(f"Placed {len(config.video_clips)} video clips")
+        _av = AudioValidator()
 
         for clip in config.audio_clips:
-            media_item = media_service.import_media(clip.path, _vv)
+            media_item = media_service.import_media(clip.path, _av)
             item = timeline_service.place_clip(media_item, clip, AUDIO_ONLY)
             if clip.id is not None:
                 placed_items[clip.id] = item
