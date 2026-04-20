@@ -74,6 +74,26 @@ def create_app() -> FastAPI:
         lifespan=lifespan
     )
 
+    @app.middleware("http")
+    async def log_requests(request, call_next):
+        req_body = await request.body()
+        log.debug(f"→ {request.method} {request.url} body={req_body!r}")
+
+        response = await call_next(request)
+
+        res_body = b""
+        async for chunk in response.body_iterator:
+            res_body += chunk
+
+        log.debug(f"← {response.status_code} {request.url} body={res_body!r}")
+
+        return Response(
+            content=res_body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            media_type=response.media_type,
+        )
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
