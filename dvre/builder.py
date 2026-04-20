@@ -83,3 +83,5 @@ class OutputBuilder:
         project_service.export_project(str(export_path.parent), str(export_path.stem), config.settings.width, config.settings.height, config.settings.frame_rate)
 
         log.info(f"Export complete: {config.export_path}")
+
+        project_service.close_project()

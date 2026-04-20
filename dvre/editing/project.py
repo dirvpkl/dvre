@@ -70,3 +70,8 @@ class ProjectService:
         self.context.project.SetRenderSettings(settings)
         job_id = self.context.project.AddRenderJob()
         self.context.project.StartRendering([job_id], isInteractiveMode=False)
+
+    def close_project(self):
+        log.debug("Closing the project")
+        self.context.project_manager.CloseProject(self.context.project)
+        log.debug("Closed the project")
