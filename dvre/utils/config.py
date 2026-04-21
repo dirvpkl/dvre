@@ -34,6 +34,7 @@ class TimelineSettings(BaseModel):
     frame_rate: float = Field(60, gt=0, description="Frame rate (fps)")
 
 
+# TODO: This is not `Clip`, this is some kinda `Spec` or something
 class FusionClip(BaseModel):
     """Group of clip IDs to merge into a single Fusion clip with an optional Fusion composition."""
 

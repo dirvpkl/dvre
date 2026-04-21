@@ -114,10 +114,15 @@ class VideoValidator:
                 f"got {meta['width']}x{meta['height']}@{meta['fps']:.4f}fps — '{path}'"
             )
 
+
 @dataclass
 class AudioValidator:
-    # currently we don't need to validate audio meta, but we can add it later if needed
-    def assert_meta(self, path: str) -> None: ...
+
+    @staticmethod
+    def assert_meta(path: str) -> None:
+        if not path.endswith(".wav"):
+            raise ValueError("Audio validator requires the .wav extension."
+                             f"mp3 may cause timing drift")
 
 
 class MediaValidator(Protocol):

@@ -8,6 +8,7 @@ Server for creating timelines via DaVinci Resolve scripting API.
 - **Python** ==3.10
 - **Windows** (for fusionscript.dll support)
 - **ffprobe** (required for `validate_media` to validate videos before load in DaVinci mediapool) — Ensure `ffprobe` is installed and available in your system PATH, or set the `FFPROBE_PATH` environment variable to its location.
+- **Audio format:** Always use **WAV** files for audio clips. MP3 files have an encoder delay that DaVinci Resolve does not compensate for, causing audio to be offset by 1–3 frames on the timeline. Convert MP3 to WAV before passing to the build config.
 
 ## Installation
 
