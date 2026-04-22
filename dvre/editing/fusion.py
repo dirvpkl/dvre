@@ -40,7 +40,9 @@ class FusionService:
 
         result = self.context.timeline.CreateFusionClip(items)
         if not result:
-            raise ResolveError(f"Failed to create Fusion clip from ids {fusion_clip.clip_ids}")
+            raise ResolveError(
+                f"Failed to create Fusion clip from ids {fusion_clip.clip_ids}"
+            )
 
         log.info(f"Created Fusion clip from ids: {fusion_clip.clip_ids}")
 
@@ -58,7 +60,9 @@ class FusionService:
             raise ResolveError(f"Fusion comp file not found: {comp_path}")
 
         if path.suffix.lower() != ".comp":
-            raise ResolveError(f"Expected a .comp file, got '{path.suffix}': {comp_path}")
+            raise ResolveError(
+                f"Expected a .comp file, got '{path.suffix}': {comp_path}"
+            )
 
         comp = timeline_item.ImportFusionComp(str(path))
         if not comp:

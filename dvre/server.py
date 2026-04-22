@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Annotated, AsyncGenerator
+from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,9 +40,12 @@ def get_project_manager(_: Request) -> ResolveProjectManager:
 
 router = APIRouter()
 
+
 # async def because of lock, the actual build process is sync because of Resolve API
 @router.post("/build", status_code=200)
-async def build(request: Request, config: BuildConfig, project_manager = Depends(get_project_manager)) -> Response:
+async def build(
+    request: Request, config: BuildConfig, project_manager=Depends(get_project_manager)
+) -> Response:
     """
     Create a timeline from JSON configuration.
 
@@ -66,12 +69,13 @@ async def build(request: Request, config: BuildConfig, project_manager = Depends
             log.exception("Unexpected build failure")
             raise HTTPException(status_code=500, detail="Unexpected build failure")
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="DVRE - DaVinci Resolve Video Editor",
         description="Server DVRE",
         version="0.1.0",
-        lifespan=lifespan
+        lifespan=lifespan,
     )
 
     @app.middleware("http")
@@ -105,6 +109,7 @@ def create_app() -> FastAPI:
     app.include_router(router)
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

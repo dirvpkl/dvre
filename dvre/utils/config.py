@@ -10,10 +10,17 @@ from pydantic import BaseModel, Field
 class BaseClip(BaseModel):
     """Common clip placement settings."""
 
-    id: str | None = Field(None, description="Optional identifier for referencing this clip in fusion_clips")
+    id: str | None = Field(
+        None,
+        description="Optional identifier for referencing this clip in fusion_clips",
+    )
     path: str = Field(..., description="Absolute path to the video file")
-    track: int = Field(1, ge=1, description="Target track number in the timeline (1-based)")
-    timeline_start: int = Field(..., ge=0, description="Frame on the timeline where the clip starts")
+    track: int = Field(
+        1, ge=1, description="Target track number in the timeline (1-based)"
+    )
+    timeline_start: int = Field(
+        ..., ge=0, description="Frame on the timeline where the clip starts"
+    )
     start_frame: int = Field(..., ge=0, description="Start frame in the source clip")
     end_frame: int = Field(..., ge=0, description="End frame in the source clip")
 
@@ -38,18 +45,36 @@ class TimelineSettings(BaseModel):
 class FusionClip(BaseModel):
     """Group of clip IDs to merge into a single Fusion clip with an optional Fusion composition."""
 
-    clip_ids: list[str] = Field(..., min_length=2, description="IDs of clips to combine into a Fusion clip (min 2)")
-    comp_path: str | None = Field(None, description="Absolute path to a .comp file to import into the Fusion clip")
+    clip_ids: list[str] = Field(
+        ...,
+        min_length=2,
+        description="IDs of clips to combine into a Fusion clip (min 2)",
+    )
+    comp_path: str | None = Field(
+        None, description="Absolute path to a .comp file to import into the Fusion clip"
+    )
 
 
 class BuildConfig(BaseModel):
     """Main configuration for final timeline creation."""
 
-    project_name: str = Field(..., description="Name of the DaVinci Resolve project (must be unique)")
+    project_name: str = Field(
+        ..., description="Name of the DaVinci Resolve project (must be unique)"
+    )
     timeline_name: str = Field(..., description="Name of the timeline to create")
-    settings: TimelineSettings = Field(default_factory=TimelineSettings, description="Timeline settings")
-    video_clips: list[VideoClip] = Field(default_factory=list, description="Video clips to add")
-    audio_clips: list[AudioClip] = Field(default_factory=list, description="Audio clips to add")
-    fusion_clips: list[FusionClip] = Field(default_factory=list, description="Groups of clips to merge into Fusion clips")
+    settings: TimelineSettings = Field(
+        default_factory=TimelineSettings, description="Timeline settings"
+    )
+    video_clips: list[VideoClip] = Field(
+        default_factory=list, description="Video clips to add"
+    )
+    audio_clips: list[AudioClip] = Field(
+        default_factory=list, description="Audio clips to add"
+    )
+    fusion_clips: list[FusionClip] = Field(
+        default_factory=list, description="Groups of clips to merge into Fusion clips"
+    )
     export_path: str = Field(..., description="Absolute path to the export video file")
-    save_project: bool = Field(True, description="Whether to save the project in DaVinci library")
+    save_project: bool = Field(
+        True, description="Whether to save the project in DaVinci library"
+    )

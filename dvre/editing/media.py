@@ -22,8 +22,9 @@ class MediaService:
     def __init__(self, context: BuildContext):
         self.context = context
 
-
-    def import_media(self, path: str, source_validator: MediaValidator) -> MediaPoolItem:
+    def import_media(
+        self, path: str, source_validator: MediaValidator
+    ) -> MediaPoolItem:
         """Import a media file into the Media Pool and return the created item."""
         log.info(f"Importing media: {path}")
 

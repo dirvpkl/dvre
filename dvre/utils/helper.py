@@ -18,18 +18,17 @@ log = logging.getLogger(__name__)
 load_dotenv()
 
 RESOLVE_EXE = os.getenv(
-    "RESOLVE_EXE",
-    r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
+    "RESOLVE_EXE", r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
 )
 
 RESOLVE_API = os.getenv(
     "RESOLVE_SCRIPT_API",
-    r"C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\Modules"
+    r"C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\Modules",
 )
 
 RESOLVE_LIB = os.getenv(
     "RESOLVE_SCRIPT_LIB",
-    r"C:\Program Files\Blackmagic Design\DaVinci Resolve\fusionscript.dll"
+    r"C:\Program Files\Blackmagic Design\DaVinci Resolve\fusionscript.dll",
 )
 
 
@@ -45,6 +44,7 @@ def ensure_resolve_running() -> None:
 
     log.info("Starting Resolve...")
     import subprocess
+
     subprocess.Popen([RESOLVE_EXE, "-nogui"])
 
 
@@ -75,10 +75,14 @@ def get_resolve(timeout: int = 120) -> Resolve:
 def _get_video_meta(path: str) -> dict[str, int | float]:
     result = subprocess.run(
         [
-            "ffprobe", "-v", "quiet",
-            "-print_format", "json",
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
             "-show_streams",
-            "-select_streams", "v:0",
+            "-select_streams",
+            "v:0",
             path,
         ],
         capture_output=True,
@@ -121,8 +125,10 @@ class AudioValidator:
     @staticmethod
     def assert_meta(path: str) -> None:
         if not path.endswith(".wav"):
-            raise ValueError("Audio validator requires the .wav extension."
-                             f"mp3 may cause timing drift")
+            raise ValueError(
+                "Audio validator requires the .wav extension."
+                "mp3 may cause timing drift"
+            )
 
 
 class MediaValidator(Protocol):

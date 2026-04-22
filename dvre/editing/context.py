@@ -9,7 +9,12 @@ import logging
 
 from dvre.utils.config import TimelineSettings
 from dvre.utils.errors import ResolveError
-from dvre.utils.types import MediaPool, Project, ProjectManager as ResolveProjectManager, Timeline
+from dvre.utils.types import (
+    MediaPool,
+    Project,
+    ProjectManager as ResolveProjectManager,
+    Timeline,
+)
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +53,9 @@ class ContextFactory:
     def __init__(self, project_manager: ResolveProjectManager):
         self.project_manager = project_manager
 
-    def create(self, project_name: str, timeline_name: str, settings: TimelineSettings) -> BuildContext:
+    def create(
+        self, project_name: str, timeline_name: str, settings: TimelineSettings
+    ) -> BuildContext:
         """Create a fully initialized BuildContext with project and timeline."""
         context = BuildContext(self.project_manager)
 
@@ -57,12 +64,16 @@ class ContextFactory:
 
         return context
 
-    def _create_project(self, context: BuildContext, project_name: str, settings: TimelineSettings) -> None:
+    def _create_project(
+        self, context: BuildContext, project_name: str, settings: TimelineSettings
+    ) -> None:
         log.info(f"Creating new project: {project_name}")
         project = self.project_manager.CreateProject(project_name, None)
 
         if not project:
-            raise ResolveError(f"Failed to create project '{project_name}' (name may already exist)")
+            raise ResolveError(
+                f"Failed to create project '{project_name}' (name may already exist)"
+            )
 
         project.SetSetting("timelineResolutionWidth", str(settings.width))
         project.SetSetting("timelineResolutionHeight", str(settings.height))

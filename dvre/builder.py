@@ -14,7 +14,12 @@ from dvre.editing.project import ProjectService
 from dvre.editing.timeline import TimelineService
 from dvre.utils.config import BuildConfig
 from dvre.utils.helper import VideoValidator, AudioValidator
-from dvre.utils.types import ProjectManager as ResolveProjectManager, TimelineItem, VIDEO_ONLY, AUDIO_ONLY
+from dvre.utils.types import (
+    ProjectManager as ResolveProjectManager,
+    TimelineItem,
+    VIDEO_ONLY,
+    AUDIO_ONLY,
+)
 
 log = logging.getLogger(__name__)
 
@@ -32,9 +37,13 @@ class OutputBuilder:
     # TODO: So if the videos 4:3 and vertically fits fully - adjust the size by 1.777 in zoom to perfectly fit this
     # TODO: You can make even 2 because blur must be enabled.
     def build(self, config: BuildConfig) -> None:
-        log.info(f"Starting build: project='{config.project_name}' timeline='{config.timeline_name}'")
+        log.info(
+            f"Starting build: project='{config.project_name}' timeline='{config.timeline_name}'"
+        )
 
-        context = self.factory.create(config.project_name, config.timeline_name, config.settings)
+        context = self.factory.create(
+            config.project_name, config.timeline_name, config.settings
+        )
 
         project_service = ProjectService(context)
         media_service = MediaService(context)
@@ -42,14 +51,20 @@ class OutputBuilder:
         fusion_service = FusionService(context)
 
         if config.video_clips:
-            timeline_service.ensure_track_count("video", max(clip.track for clip in config.video_clips))
+            timeline_service.ensure_track_count(
+                "video", max(clip.track for clip in config.video_clips)
+            )
 
         if config.audio_clips:
-            timeline_service.ensure_track_count("audio", max(clip.track for clip in config.audio_clips))
+            timeline_service.ensure_track_count(
+                "audio", max(clip.track for clip in config.audio_clips)
+            )
 
         placed_items: dict[str, TimelineItem] = {}
 
-        _vv = VideoValidator(config.settings.width, config.settings.height, config.settings.frame_rate)
+        _vv = VideoValidator(
+            config.settings.width, config.settings.height, config.settings.frame_rate
+        )
 
         for clip in config.video_clips:
             media_item = media_service.import_media(clip.path, _vv)
@@ -67,7 +82,6 @@ class OutputBuilder:
                 placed_items[clip.id] = item
         log.info(f"Placed {len(placed_items)} audio+video clips")
 
-
         # TODO: add smart splitter
         # TODO: add zoom in on every beat
         log.debug(f"placed_items keys: {list(placed_items.keys())[:10]}")
@@ -80,7 +94,13 @@ class OutputBuilder:
             project_service.save_current_project()
 
         export_path = Path(config.export_path)
-        project_service.export_project(str(export_path.parent), str(export_path.stem), config.settings.width, config.settings.height, config.settings.frame_rate)
+        project_service.export_project(
+            str(export_path.parent),
+            str(export_path.stem),
+            config.settings.width,
+            config.settings.height,
+            config.settings.frame_rate,
+        )
 
         log.info(f"Export complete: {config.export_path}")
 

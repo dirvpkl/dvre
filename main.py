@@ -26,14 +26,14 @@ def main() -> None:
     """Run the DVRE server."""
     host = os.getenv("HOST", "127.0.0.1")
     port = int(os.getenv("PORT", "8000"))
-    
+
     log.info(f"Starting DVRE server on {host}:{port}")
     log.info(f"API documentation available at http://{host}:{port}/docs")
-    
+
     from dvre.server import create_app
-    
+
     app = create_app()
-    
+
     uvicorn.run(
         app,
         host=host,

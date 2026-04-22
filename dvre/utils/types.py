@@ -1,4 +1,5 @@
 """Common types for DVRE."""
+
 from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
         Timeline,
         TimelineClipInfo,
         TimelineItem,
-        RenderSettings
+        RenderSettings,
     )
 else:
     MediaPool = object
