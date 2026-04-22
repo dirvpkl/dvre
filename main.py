@@ -12,13 +12,9 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+from dvre.utils.logger import setup_logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-
+setup_logging()
 log = logging.getLogger(__name__)
 
 
