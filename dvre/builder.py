@@ -36,7 +36,7 @@ class OutputBuilder:
     # TODO: Moreover you better to make background from that clips and upscale and blur to make it as background image
     # TODO: So if the videos 4:3 and vertically fits fully - adjust the size by 1.777 in zoom to perfectly fit this
     # TODO: You can make even 2 because blur must be enabled.
-    def build(self, config: BuildConfig) -> None:
+    def build(self, config: BuildConfig) -> str:
         log.info(
             f"Starting build: project='{config.project_name}' timeline='{config.timeline_name}'"
         )
@@ -94,7 +94,7 @@ class OutputBuilder:
             project_service.save_current_project()
 
         export_path = Path(config.export_path)
-        project_service.export_project(
+        job_id = project_service.export_project(
             str(export_path.parent),
             str(export_path.stem),
             config.settings.width,
@@ -102,6 +102,6 @@ class OutputBuilder:
             config.settings.frame_rate,
         )
 
-        log.info(f"Export complete: {config.export_path}")
+        log.info(f"Export started: {config.export_path} job_id={job_id}")
 
-        project_service.close_project()
+        return job_id

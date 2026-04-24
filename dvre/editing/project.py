@@ -36,7 +36,7 @@ class ProjectService:
         width: int,
         height: int,
         frame_rate: float,
-    ) -> None:
+    ) -> str:
         self.context.project.SetCurrentRenderFormatAndCodec("MP4", "H264")
         settings: RenderSettings = {
             "SelectAllFrames": True,
@@ -72,6 +72,10 @@ class ProjectService:
         self.context.project.SetRenderSettings(settings)
         job_id = self.context.project.AddRenderJob()
         self.context.project.StartRendering([job_id], isInteractiveMode=False)
+        return job_id
+
+    def get_render_job_status(self, job_id):
+        return self.context.project.GetRenderJobStatus(job_id)
 
     def close_project(self):
         log.debug("Closing the project")

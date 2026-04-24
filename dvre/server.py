@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Respons
 from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
-from dvre.utils.config import BuildConfig
+from dvre.utils.config import BuildConfig, BuildResponse, RenderJobStatus
 from dvre.utils.errors import ResolveError
 from dvre.utils.helper import get_resolve
 from dvre.utils.types import ProjectManager as ResolveProjectManager
@@ -45,7 +45,7 @@ router = APIRouter()
 @router.post("/build", status_code=200)
 async def build(
     request: Request, config: BuildConfig, project_manager=Depends(get_project_manager)
-) -> Response:
+) -> BuildResponse:
     """
     Create a timeline from JSON configuration.
 
@@ -60,14 +60,35 @@ async def build(
 
     async with lock:
         try:
-            OutputBuilder(project_manager).build(config)
-            return Response(status_code=200)
+            job_id = OutputBuilder(project_manager).build(config)
+            return BuildResponse(job_id=job_id)
         except ResolveError as e:
             log.error(f"Resolve error: {e}")
             raise HTTPException(status_code=500, detail=str(e))
         except Exception:
             log.exception("Unexpected build failure")
             raise HTTPException(status_code=500, detail="Unexpected build failure")
+
+
+@router.post("/project/close", status_code=204)
+def close_project(project_manager=Depends(get_project_manager)) -> None:
+    project = project_manager.GetCurrentProject()
+    if project is None:
+        raise HTTPException(status_code=404, detail="No active project")
+    log.debug("Closing project via API")
+    project_manager.CloseProject(project)
+    log.debug("Project closed")
+
+
+@router.get("/render-job/{job_id}/status")
+def render_job_status(
+    job_id: str, project_manager=Depends(get_project_manager)
+) -> RenderJobStatus:
+    project = project_manager.GetCurrentProject()
+    if project is None:
+        raise HTTPException(status_code=404, detail="No active project")
+    raw = project.GetRenderJobStatus(job_id)
+    return RenderJobStatus.model_validate(raw)
 
 
 def create_app() -> FastAPI:
