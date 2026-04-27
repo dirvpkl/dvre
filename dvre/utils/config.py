@@ -7,13 +7,17 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class BaseClip(BaseModel):
+class TimelineSettings(BaseModel):
+    """Timeline resolution and format settings."""
+
+    width: int = Field(1920, gt=0, description="Timeline width in pixels")
+    height: int = Field(1080, gt=0, description="Timeline height in pixels")
+    frame_rate: float = Field(60, gt=0, description="Frame rate (fps)")
+
+
+class _BaseClip(BaseModel):
     """Common clip placement settings."""
 
-    id: str | None = Field(
-        None,
-        description="Optional identifier for referencing this clip in fusion_clips",
-    )
     path: str = Field(..., description="Absolute path to the video file")
     track: int = Field(
         1, ge=1, description="Target track number in the timeline (1-based)"
@@ -25,35 +29,44 @@ class BaseClip(BaseModel):
     end_frame: int = Field(..., ge=0, description="End frame in the source clip")
 
 
-class VideoClip(BaseClip):
+class VideoClip(_BaseClip):
     """Video clip placement configuration."""
 
 
-class AudioClip(BaseClip):
+class AudioClip(_BaseClip):
     """Audio clip placement configuration."""
 
 
-class TimelineSettings(BaseModel):
-    """Timeline resolution and format settings."""
+class BaseLayer(BaseModel):
+    """A compound clip layer containing media clips."""
 
-    width: int = Field(1920, gt=0, description="Timeline width in pixels")
-    height: int = Field(1080, gt=0, description="Timeline height in pixels")
-    frame_rate: float = Field(60, gt=0, description="Frame rate (fps)")
+    name: str = Field(..., description="Name of the compound clip")
+    video_clips: list[VideoClip] = Field(
+        default_factory=list, description="Video clips to place on the timeline, in placement order"
+    )
+    audio_clips: list[AudioClip] = Field(
+        default_factory=list, description="Audio clips to place on the timeline"
+    )
 
 
-# TODO: This is not `Clip`, this is some kinda `Spec` or something
 class FusionClip(BaseModel):
-    """Group of clip IDs to merge into a single Fusion clip with an optional Fusion composition."""
+    """A segment of the previous compound clip on which a Fusion composition is applied."""
 
-    clip_ids: list[str] = Field(
-        ...,
-        min_length=2,
-        description="IDs of clips to combine into a Fusion clip (min 2)",
-    )
-    comp_path: str | None = Field(
-        None, description="Absolute path to a .comp file to import into the Fusion clip"
+    start_frame: int = Field(..., ge=0, description="Start frame within the source compound")
+    end_frame: int = Field(..., ge=0, description="End frame within the source compound")
+    comp_path: str = Field(
+        ..., description="Absolute path to a .comp file to import into the Fusion clip"
     )
 
+
+class FusionLayer(BaseModel):
+    """A compound clip layer that slices the previous compound and applies Fusion compositions."""
+
+    name: str = Field(..., description="Name of the compound clip")
+    fusion_clips: list[FusionClip] = Field(
+        ..., min_length=1,
+        description="Segments of the previous compound clip on which Fusion compositions are applied. Order matters."
+    )
 
 class BuildResponse(BaseModel):
     """Response from the build endpoint."""
@@ -66,11 +79,11 @@ class RenderJobStatus(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    job_status: str = Field(alias="JobStatus")
-    completion_percentage: int = Field(alias="CompletionPercentage")
-    estimated_time_remaining_ms: int | None = Field(None, alias="EstimatedTimeRemainingInMs")
-    time_taken_to_render_ms: int | None = Field(None, alias="TimeTakenToRenderInMs")
-    error: str | None = Field(None, alias="Error")
+    job_status: str = Field(validation_alias="JobStatus")
+    completion_percentage: int = Field(validation_alias="CompletionPercentage")
+    estimated_time_remaining_ms: int | None = Field(None, validation_alias="EstimatedTimeRemainingInMs")
+    time_taken_to_render_ms: int | None = Field(None, validation_alias="TimeTakenToRenderInMs")
+    error: str | None = Field(None, validation_alias="Error")
 
 
 class BuildConfig(BaseModel):
@@ -83,14 +96,8 @@ class BuildConfig(BaseModel):
     settings: TimelineSettings = Field(
         default_factory=TimelineSettings, description="Timeline settings"
     )
-    video_clips: list[VideoClip] = Field(
-        default_factory=list, description="Video clips to add"
-    )
-    audio_clips: list[AudioClip] = Field(
-        default_factory=list, description="Audio clips to add"
-    )
-    fusion_clips: list[FusionClip] = Field(
-        default_factory=list, description="Groups of clips to merge into Fusion clips"
+    layers: list[BaseLayer | FusionLayer] = Field(
+        default_factory=list, description="Layers to build, processed in order"
     )
     export_path: str = Field(..., description="Absolute path to the export video file")
     save_project: bool = Field(

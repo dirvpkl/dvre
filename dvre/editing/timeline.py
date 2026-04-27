@@ -8,9 +8,8 @@ import logging
 from typing import Literal
 
 from dvre.editing.context import BuildContext
-from dvre.utils.config import BaseClip
 from dvre.utils.errors import ResolveError
-from dvre.utils.types import MediaPoolClipInfo, MediaPoolItem, MediaType, TimelineItem
+from dvre.utils.types import MediaPoolClipInfo, MediaPoolItem, MediaType, TimelineItem, TimelineClipInfo
 
 log = logging.getLogger(__name__)
 
@@ -39,27 +38,66 @@ class TimelineService:
                 raise ResolveError(f"Failed to add {track_type} track {next_index}")
 
     def place_clip(
-        self, media_item: MediaPoolItem, clip_config: BaseClip, media_type: MediaType
+            self,
+            media_item: MediaPoolItem,
+            track: int,
+            start_frame: int,
+            end_frame: int,
+            timeline_start: int,
+            media_type: MediaType,
     ) -> TimelineItem:
         """Place an already-imported media item onto the timeline."""
         log.info(
-            f"Placing clip on timeline | media_type={media_type} | track={clip_config.track} "
-            f"| timeline_start={clip_config.timeline_start} | source={clip_config.start_frame}-{clip_config.end_frame}"
+            f"Placing clip on timeline | media_type={media_type} | track={track} "
+            f"| timeline_start={timeline_start} | source={start_frame}-{end_frame}"
         )
 
         clip_info: MediaPoolClipInfo = {
             "mediaPoolItem": media_item,
-            "startFrame": clip_config.start_frame,
-            "endFrame": clip_config.end_frame,
+            "startFrame": start_frame,
+            "endFrame": end_frame,
             "mediaType": media_type,
-            "trackIndex": clip_config.track,
+            "trackIndex": track,
             "recordFrame": self.context.timeline.GetStartFrame()
-            + clip_config.timeline_start,
+            + timeline_start,
         }
 
         result = self.context.media_pool.AppendToTimeline([clip_info])
         if not result:
-            raise ResolveError(f"Failed to place clip on track {clip_config.track}")
+            raise ResolveError(f"Failed to place a clip {media_item}: {start_frame}/{end_frame} on {timeline_start} on track {track}")
 
-        log.debug(f"Clip placed on track {clip_config.track}")
+        log.debug(f"Clip placed on track {track}")
         return result[0]
+
+    def compound_clip(self, compound_clip_info: TimelineClipInfo) -> TimelineItem:
+        """Compound all items on the timeline into a single compound clip."""
+        log.info(f"Creating compound clip | name={compound_clip_info['name']}")
+        items: list[TimelineItem] = []
+        tracks: list[Literal["audio", "video"]] = ["audio", "video"]
+        for track_type in tracks:
+            track_count = self.context.timeline.GetTrackCount(track_type)
+            for i in range(1, track_count + 1):
+                track_items = self.context.timeline.GetItemListInTrack(track_type, i)
+                if track_items:
+                    items.extend(track_items)
+        result = self.context.timeline.CreateCompoundClip(items, compound_clip_info)
+        if not result:
+            raise ResolveError(f"Failed to create compound clip '{compound_clip_info['name']}'")
+        return result
+
+    def delete_clips(self, items: list[TimelineItem]) -> bool:
+        log.info(f"Deleting clip {items}")
+        result = self.context.timeline.DeleteClips(items, False)
+        if not result:
+            raise ResolveError("Failed to delete clips from timeline")
+        return result
+
+    @property
+    def start_frame(self) -> int:
+        return self.context.timeline.GetStartFrame()
+
+    def get_compound_info(self, item: TimelineItem) -> tuple[MediaPoolItem, int, int]:
+        mpi = item.GetMediaPoolItem()
+        start = item.GetStart(False) - self.start_frame
+        end = item.GetEnd(False) - self.start_frame
+        return mpi, start, end

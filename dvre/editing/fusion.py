@@ -24,27 +24,16 @@ class FusionService:
         self.context = context
 
     def create_fusion_clip(
-        self,
-        fusion_clip: FusionClip,
-        placed_items: dict[str, TimelineItem],
+            self,
+            fusion_clip: FusionClip,
+            items: list[TimelineItem],
     ) -> TimelineItem:
-        """Create a Fusion clip from previously placed timeline items, optionally importing a .comp."""
-        items: list[TimelineItem] = []
-        for clip_id in fusion_clip.clip_ids:
-            if clip_id not in placed_items:
-                raise ResolveError(
-                    f"Fusion clip references unknown clip id '{clip_id}'. "
-                    f"Available ids: {list(placed_items.keys())}"
-                )
-            items.append(placed_items[clip_id])
-
         result = self.context.timeline.CreateFusionClip(items)
         if not result:
             raise ResolveError(
-                f"Failed to create Fusion clip from ids {fusion_clip.clip_ids}"
+                f"Failed to create Fusion clip at frames {fusion_clip.start_frame}-{fusion_clip.end_frame}"
             )
-
-        log.info(f"Created Fusion clip from ids: {fusion_clip.clip_ids}")
+        log.info(f"Created Fusion clip | frames={fusion_clip.start_frame}-{fusion_clip.end_frame}")
 
         if fusion_clip.comp_path is not None:
             self._import_comp(result, fusion_clip.comp_path)
