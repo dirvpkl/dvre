@@ -59,7 +59,16 @@ The server will start on `http://127.0.0.1:8000`
 
 ## Build Config
 
-The server accepts a JSON config with separate video and audio placement:
+The timeline is built as a stack of **layers**, processed in order. Each layer is
+collapsed into a compound clip, and the next layer is built on top of it,
+referencing the previous compound where needed (gap-fill, fusion segments).
+
+There are two layer types:
+
+- **`BaseLayer`** — places raw video/audio clips on tracks.
+- **`FusionLayer`** — slices the previous compound by `[start_frame, end_frame]`
+  and applies a `.comp` to each segment. Must follow a `BaseLayer` (raises
+  `ResolveError` otherwise).
 
 ```json
 {
@@ -70,29 +79,37 @@ The server accepts a JSON config with separate video and audio placement:
     "height": 1080,
     "frame_rate": 60.0
   },
-  "video_clips": [
+  "layers": [
     {
-      "id": "intro",
-      "path": "C:/Videos/intro.mp4",
-      "track": 1,
-      "timeline_start": 0,
-      "start_frame": 0,
-      "end_frame": 240
-    }
-  ],
-  "audio_clips": [
+      "name": "RAW",
+      "video_clips": [
+        {
+          "path": "C:/Videos/intro.mp4",
+          "track": 1,
+          "timeline_start": 0,
+          "start_frame": 0,
+          "end_frame": 240
+        }
+      ],
+      "audio_clips": [
+        {
+          "path": "C:/Audio/voiceover.wav",
+          "track": 1,
+          "timeline_start": 0,
+          "start_frame": 0,
+          "end_frame": 740
+        }
+      ]
+    },
     {
-      "path": "C:/Audio/voiceover.wav",
-      "track": 1,
-      "timeline_start": 0,
-      "start_frame": 0,
-      "end_frame": 740
-    }
-  ],
-  "fusion_clips": [
-    {
-      "clip_ids": ["main", "broll"],
-      "comp_path": "C:/Comps/overlay.comp"
+      "name": "FX",
+      "fusion_clips": [
+        {
+          "start_frame": 60,
+          "end_frame": 180,
+          "comp_path": "C:/Comps/overlay.comp"
+        }
+      ]
     }
   ],
   "export_path": "C:/Videos/output.mp4",
@@ -100,21 +117,43 @@ The server accepts a JSON config with separate video and audio placement:
 }
 ```
 
+### Layers
+
+- `name` — name of the resulting compound clip for this layer.
+- `BaseLayer` carries `video_clips` and/or `audio_clips`.
+- `FusionLayer` carries `fusion_clips` and slices the previous compound.
+
+A single layer cannot mix raw clips and fusion clips — they are separate types.
+Put fusion effects in their own `FusionLayer` placed after a `BaseLayer`.
+
 ### Clip Fields
 
-- `video_clips` and `audio_clips`: clips to place on explicit timeline tracks.
-- each clip supports `track`, `timeline_start`, `start_frame`, `end_frame`.
-- `id` (optional for audio): unique identifier for video clips, used by `fusion_clips`.
+`video_clips` and `audio_clips` share the same fields:
 
-### Fusion Comps
+- `path` — absolute path to the source media.
+- `track` — 1-based timeline track.
+- `timeline_start` — frame on the timeline where the clip starts.
+- `start_frame` / `end_frame` — in/out points within the source media.
 
-- `fusion_clips`: list of Fusion compositions referencing video clips by `clip_ids`.
-- `comp_path`: path to a `.comp` file.
+### Fusion Clips
+
+- `start_frame` / `end_frame` — segment of the previous compound to apply Fusion to.
+- `comp_path` — absolute path to a `.comp` file (required).
+
+### Gap-fill behavior
+
+Inside a `BaseLayer`, gaps on **track 1** between newly placed clips are
+automatically filled with slices of the previous compound, so the main
+videoline stays continuous across layers. Clips on tracks ≥ 2 do **not**
+trigger gap-fill — they are treated as overlays sitting on top of track 1.
 
 ### Export
 
-- `export_path`: output file path for rendering.
-- `save_project`: whether to save the DaVinci Resolve project file.
+- `export_path` — output file path for rendering.
+- `save_project` — whether to save the DaVinci Resolve project file.
 
-The server uses Resolve `AppendToTimeline([{clipInfo}])` with `trackIndex`, `recordFrame` and `mediaType`, so video and audio can be placed independently on different tracks.
-Track counts are derived automatically from the highest `track` number in the clip lists. Audio tracks are always created as `stereo`.
+The server uses Resolve `AppendToTimeline([{clipInfo}])` with `trackIndex`,
+`recordFrame` and `mediaType`, so video and audio can be placed independently
+on different tracks. Track counts are derived automatically from the highest
+`track` number in each layer's clip lists. Audio tracks are always created as
+`stereo`.
