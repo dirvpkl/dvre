@@ -23,7 +23,7 @@ class TimelineService:
         self.context = context
 
     def ensure_track_count(
-        self, track_type: Literal["audio", "video", "subtitle"], required_tracks: int
+        self, track_type: Literal["audio", "video"], required_tracks: int
     ) -> None:
         timeline = self.context.timeline
         current_tracks = timeline.GetTrackCount(track_type)
@@ -72,18 +72,32 @@ class TimelineService:
     def compound_clip(self, compound_clip_info: TimelineClipInfo) -> TimelineItem:
         """Compound all items on the timeline into a single compound clip."""
         log.info(f"Creating compound clip | name={compound_clip_info['name']}")
+
+        # Getting all items from all tracks
         items: list[TimelineItem] = []
-        tracks: list[Literal["audio", "video"]] = ["audio", "video"]
-        for track_type in tracks:
+        for track_type in ("audio", "video"):
             track_count = self.context.timeline.GetTrackCount(track_type)
             for i in range(1, track_count + 1):
                 track_items = self.context.timeline.GetItemListInTrack(track_type, i)
                 if track_items:
                     items.extend(track_items)
+
         result = self.context.timeline.CreateCompoundClip(items, compound_clip_info)
-        if not result:
-            raise ResolveError(f"Failed to create compound clip '{compound_clip_info['name']}'")
-        return result
+        if result:
+            return result
+
+        else:
+            # Resolve can return None even on successful compound clip creation —
+            # when items contain both audio and video tracks simultaneously.
+            # In that case we must search the newly created compound clip on the timeline.
+            # Since this method compounds every clip into a single one,
+            # the result is always the first item on video track 1.
+            track_item = self.context.timeline.GetItemListInTrack("video", 1)
+            name = compound_clip_info["name"]
+            if len(track_item) > 0 and track_item[0].GetName() == name:
+                return track_item[0]
+
+        raise ResolveError(f"Failed to create compound clip '{name}'")
 
     def delete_clips(self, items: list[TimelineItem]) -> bool:
         log.info(f"Deleting clip {items}")
