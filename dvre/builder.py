@@ -35,7 +35,7 @@ class OutputBuilder:
     def __init__(self, project_manager: ResolveProjectManager):
         self.factory = ContextFactory(project_manager)
 
-    # TODO: All the clips MUST BE 1920x1080! The timeline supports only 1920x1080
+
     # TODO: Moreover you better to make background from that clips and upscale and blur to make it as background image
     # TODO: So if the videos 4:3 and vertically fits fully - adjust the size by 1.777 in zoom to perfectly fit this
     # TODO: You can make even 2 because blur must be enabled.
