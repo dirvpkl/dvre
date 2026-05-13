@@ -84,17 +84,17 @@ class OutputBuilder:
                         # it is required typically only for background
                         track_clips = sorted(
                             [c for c in clips if c.track == 1], 
-                            key=lambda c: c.timeline_start
+                            key=lambda c: c.timeline_start_frame
                         )
 
                         prev_end = compound_start
                         for clip in track_clips:
-                            if prev_end < clip.timeline_start:
+                            if prev_end < clip.timeline_start_frame:
                                 timeline_service.place_clip(
-                                    compound_mpi, 1, prev_end, clip.timeline_start, prev_end,
+                                    compound_mpi, 1, prev_end, clip.timeline_start_frame, prev_end,
                                     VIDEO_ONLY if track_type == "video" else AUDIO_ONLY
                                 )
-                            prev_end = clip.timeline_start + (clip.end_frame - clip.start_frame)
+                            prev_end = clip.timeline_start_frame + (clip.end_frame - clip.start_frame)
 
                         if prev_end < compound_end:
                             timeline_service.place_clip(
@@ -105,14 +105,14 @@ class OutputBuilder:
                 for clip in layer.video_clips:
                     media_item = media_service.import_media(clip.path, _vv)
                     timeline_service.place_clip(
-                        media_item, clip.track, clip.start_frame, clip.end_frame, clip.timeline_start, VIDEO_ONLY
+                        media_item, clip.track, clip.start_frame, clip.end_frame, clip.timeline_start_frame, VIDEO_ONLY
                     )
                 log.info(f"[{layer.name}] Placed {len(layer.video_clips)} video clips")
 
                 for clip in layer.audio_clips:
                     media_item = media_service.import_media(clip.path, _av)
                     timeline_service.place_clip(
-                        media_item, clip.track, clip.start_frame, clip.end_frame, clip.timeline_start, AUDIO_ONLY
+                        media_item, clip.track, clip.start_frame, clip.end_frame, clip.timeline_start_frame, AUDIO_ONLY
                     )
                 log.info(f"[{layer.name}] Placed {len(layer.audio_clips)} audio clips")
 

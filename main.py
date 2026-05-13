@@ -10,7 +10,6 @@ import os
 import uvicorn
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 from dvre.utils.logger import setup_logging
 

@@ -86,7 +86,7 @@ There are two layer types:
         {
           "path": "C:/Videos/intro.mp4",
           "track": 1,
-          "timeline_start": 0,
+          "timeline_start_frame": 0,
           "start_frame": 0,
           "end_frame": 240
         }
@@ -95,7 +95,7 @@ There are two layer types:
         {
           "path": "C:/Audio/voiceover.wav",
           "track": 1,
-          "timeline_start": 0,
+          "timeline_start_frame": 0,
           "start_frame": 0,
           "end_frame": 740
         }
@@ -132,7 +132,7 @@ Put fusion effects in their own `FusionLayer` placed after a `BaseLayer`.
 
 - `path` — absolute path to the source media.
 - `track` — 1-based timeline track.
-- `timeline_start` — frame on the timeline where the clip starts.
+- `timeline_start_frame` — frame on the timeline where the clip starts.
 - `start_frame` / `end_frame` — in/out points within the source media.
 
 ### Fusion Clips

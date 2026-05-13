@@ -43,13 +43,13 @@ class TimelineService:
             track: int,
             start_frame: int,
             end_frame: int,
-            timeline_start: int,
+            timeline_start_frame: int,
             media_type: MediaType,
     ) -> TimelineItem:
         """Place an already-imported media item onto the timeline."""
         log.info(
             f"Placing clip on timeline | media_type={media_type} | track={track} "
-            f"| timeline_start={timeline_start} | source={start_frame}-{end_frame}"
+            f"| timeline_start_frame={timeline_start_frame} | source={start_frame}-{end_frame}"
         )
 
         clip_info: MediaPoolClipInfo = {
@@ -59,12 +59,12 @@ class TimelineService:
             "mediaType": media_type,
             "trackIndex": track,
             "recordFrame": self.context.timeline.GetStartFrame()
-            + timeline_start,
+                           + timeline_start_frame,
         }
 
         result = self.context.media_pool.AppendToTimeline([clip_info])
         if not result:
-            raise ResolveError(f"Failed to place a clip {media_item}: {start_frame}/{end_frame} on {timeline_start} on track {track}")
+            raise ResolveError(f"Failed to place a clip {media_item}: {start_frame}/{end_frame} on {timeline_start_frame} on track {track}")
 
         log.debug(f"Clip placed on track {track}")
         return result[0]

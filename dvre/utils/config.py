@@ -22,7 +22,7 @@ class _BaseClip(BaseModel):
     track: int = Field(
         1, ge=1, description="Target track number in the timeline (1-based)"
     )
-    timeline_start: int = Field(
+    timeline_start_frame: int = Field(
         ..., ge=0, description="Frame on the timeline where the clip starts"
     )
     start_frame: int = Field(..., ge=0, description="Start frame in the source clip")
