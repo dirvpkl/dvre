@@ -1,3 +1,4 @@
+# TODO: add manifest of completed file
 # DVRE - DaVinci Resolve Video Editor
 
 Server for creating timelines via DaVinci Resolve scripting API.

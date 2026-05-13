@@ -1,5 +1,5 @@
 """
-DVRE - DaVinci Resolve Video Editor Server
+DVRE - DaVinci Resolve video Editor server
 
 Main entry point for running the DVRE server.
 """
@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 
 def main() -> None:
     """Run the DVRE server."""
-    host = os.getenv("HOST", "127.0.0.1")
-    port = int(os.getenv("PORT", "8000"))
+    host = os.getenv("HOST")
+    port = int(os.getenv("PORT"))
 
     log.info(f"Starting DVRE server on {host}:{port}")
     log.info(f"API documentation available at http://{host}:{port}/docs")

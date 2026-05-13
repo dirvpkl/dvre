@@ -36,9 +36,6 @@ class OutputBuilder:
         self.factory = ContextFactory(project_manager)
 
 
-    # TODO: Moreover you better to make background from that clips and upscale and blur to make it as background image
-    # TODO: So if the videos 4:3 and vertically fits fully - adjust the size by 1.777 in zoom to perfectly fit this
-    # TODO: You can make even 2 because blur must be enabled.
     def build(self, config: BuildConfig) -> str:
         log.info(
             f"Starting build: project='{config.project_name}' timeline='{config.timeline_name}'"
