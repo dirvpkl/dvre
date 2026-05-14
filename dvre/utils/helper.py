@@ -9,13 +9,10 @@ from dataclasses import dataclass
 from typing import Protocol
 
 import psutil
-from dotenv import load_dotenv
 
 from dvre.utils.types import Resolve
 
 log = logging.getLogger(__name__)
-
-load_dotenv()
 
 RESOLVE_EXE = os.getenv(
     "RESOLVE_EXE", r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
