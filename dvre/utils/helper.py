@@ -1,10 +1,9 @@
+import json
 import logging
 import os
+import subprocess
 import sys
 import time
-
-import json
-import subprocess
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -34,7 +33,7 @@ def ensure_resolve_running() -> None:
     for proc in psutil.process_iter(["name"]):
         try:
             if proc.info["name"] == "Resolve.exe":
-                log.info("Resolve already running")
+                log.debug("Resolve already running")
                 return
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
@@ -61,7 +60,7 @@ def get_resolve(timeout: int = 120) -> Resolve:
     while time.time() - start < timeout:
         resolve: Resolve = dvr.scriptapp("Resolve")
         if resolve:
-            log.info("Connected to Resolve")
+            log.debug("Connected to Resolve")
             return resolve
         time.sleep(1)
         log.debug("Waiting for Resolve...")
@@ -118,13 +117,11 @@ class VideoValidator:
 
 @dataclass
 class AudioValidator:
-
     @staticmethod
     def assert_meta(path: str) -> None:
         if not path.endswith(".wav"):
             raise ValueError(
-                "Audio validator requires the .wav extension."
-                "mp3 may cause timing drift"
+                "Audio validator requires the .wav extension.mp3 may cause timing drift"
             )
 
 

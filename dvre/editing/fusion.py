@@ -24,16 +24,18 @@ class FusionService:
         self.context = context
 
     def create_fusion_clip(
-            self,
-            fusion_clip: FusionClip,
-            items: list[TimelineItem],
+        self,
+        fusion_clip: FusionClip,
+        items: list[TimelineItem],
     ) -> TimelineItem:
         result = self.context.timeline.CreateFusionClip(items)
         if not result:
             raise ResolveError(
                 f"Failed to create Fusion clip at frames {fusion_clip.start_frame}-{fusion_clip.end_frame}"
             )
-        log.info(f"Created Fusion clip | frames={fusion_clip.start_frame}-{fusion_clip.end_frame}")
+        log.info(
+            f"Created Fusion clip | frames={fusion_clip.start_frame}-{fusion_clip.end_frame}"
+        )
 
         if fusion_clip.comp_path is not None:
             self._import_comp(result, fusion_clip.comp_path)
