@@ -28,25 +28,24 @@ RESOLVE_LIB = os.getenv(
 )
 
 
-def ensure_resolve_running() -> None:
-    """Ensure DaVinci Resolve is running, start it if not."""
+def ensure_resolve_running() -> bool:
+    """Ensure DaVinci Resolve is running, start it if not. Returns True if Resolve was just started."""
     for proc in psutil.process_iter(["name"]):
         try:
             if proc.info["name"] == "Resolve.exe":
                 log.debug("Resolve already running")
-                return
+                return False
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
     log.info("Starting Resolve...")
-    import subprocess
-
     subprocess.Popen([RESOLVE_EXE, "-nogui"])
+    return True
 
 
 def get_resolve(timeout: int = 120) -> Resolve:
     """Connect to the DaVinci Resolve scripting API."""
-    ensure_resolve_running()
+    fresh_start = ensure_resolve_running()
 
     if RESOLVE_API not in sys.path:
         sys.path.append(RESOLVE_API)
@@ -61,6 +60,9 @@ def get_resolve(timeout: int = 120) -> Resolve:
         resolve: Resolve = dvr.scriptapp("Resolve")
         if resolve:
             log.debug("Connected to Resolve")
+            if fresh_start:
+                resolve.DisableBackgroundTasksForCurrentResolveSession()
+                log.debug("Background tasks disabled for this Resolve session")
             return resolve
         time.sleep(1)
         log.debug("Waiting for Resolve...")

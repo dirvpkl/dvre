@@ -20,7 +20,7 @@ Export MP4/H.264
 
 ## Requirements
 
-- **DaVinci Resolve Studio** (Free version has no scripting API)
+- **DaVinci Resolve Studio 21B3+** (Free version has no scripting API)
 - **Python** 3.10
 - **Windows** (fusionscript.dll)
 - **ffprobe** — in PATH or set `FFPROBE_PATH`
