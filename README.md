@@ -56,7 +56,8 @@ Builds are serialized — only one at a time (409 if busy).
   "settings": {
     "width": 1920,
     "height": 1080,
-    "frame_rate": 60
+    "frame_rate": 60,
+    "super_scale": 2
   },
   "layers": [
     {

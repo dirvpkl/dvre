@@ -4,6 +4,8 @@ Configuration models for DVRE timeline creation.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -13,6 +15,15 @@ class TimelineSettings(BaseModel):
     width: int = Field(1920, gt=0, description="Timeline width in pixels")
     height: int = Field(1080, gt=0, description="Timeline height in pixels")
     frame_rate: float = Field(60, gt=0, description="Frame rate (fps)")
+    super_scale: Literal[0, 1, 2, 3, 4] | None = Field(
+        None,
+        description=(
+            "DaVinci Resolve SuperScale project setting. "
+            "0=Auto, 1=No scaling, 2=2x, 3=3x, 4=4x. "
+            "Applied once on project creation via Project:SetSetting('superScale', x). "
+            "2x Enhanced is not yet exposed."
+        ),
+    )
 
 
 class _BaseClip(BaseModel):

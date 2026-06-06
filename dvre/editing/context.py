@@ -79,6 +79,13 @@ class ContextFactory:
         project.SetSetting("timelineResolutionHeight", str(settings.height))
         project.SetSetting("timelineFrameRate", str(settings.frame_rate))
 
+        if settings.super_scale is not None:
+            if not project.SetSetting("superScale", settings.super_scale):
+                raise ResolveError(
+                    f"Failed to set project superScale={settings.super_scale}"
+                )
+            log.info(f"Project superScale={settings.super_scale} applied")
+
         context._project = project
         context._media_pool = project.GetMediaPool()
         log.info(f"Project created: {project_name}")
