@@ -12,7 +12,8 @@ from dvre.editing.fusion import FusionService
 from dvre.editing.media import MediaService
 from dvre.editing.project import ProjectService
 from dvre.editing.timeline import TimelineService
-from dvre.utils.config import BuildConfig, BaseLayer, FusionLayer
+from dvre.schemas.api import BuildConfig
+from dvre.schemas.layers import BaseLayer, FusionLayer
 from dvre.utils.errors import ResolveError
 from dvre.utils.helper import VideoValidator, AudioValidator
 from dvre.utils.types import (

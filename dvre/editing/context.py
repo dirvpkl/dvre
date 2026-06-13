@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 
-from dvre.utils.config import TimelineSettings
+from dvre.schemas.api import TimelineSettings
 from dvre.utils.errors import ResolveError
 from dvre.utils.types import (
     MediaPool,

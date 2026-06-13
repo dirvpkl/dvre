@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 from dvre.editing.context import BuildContext
-from dvre.utils.config import FusionClip
+from dvre.schemas.clips import FusionClip
 from dvre.utils.errors import ResolveError
 from dvre.utils.types import TimelineItem
 

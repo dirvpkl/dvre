@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Respons
 from fastapi.middleware.cors import CORSMiddleware
 
 from dvre.builder import OutputBuilder
-from dvre.utils.config import BuildConfig, BuildResponse, RenderJobStatus
+from dvre.schemas.api import BuildConfig, BuildResponse, RenderJobStatus
 from dvre.utils.errors import ResolveError
 from dvre.utils.helper import get_resolve
 from dvre.utils.types import ProjectManager as ResolveProjectManager
