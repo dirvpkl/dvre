@@ -8,7 +8,7 @@ import logging
 
 from dvre.editing.context import BuildContext
 from dvre.utils.errors import ResolveError
-from dvre.utils.helper import MediaValidator
+from dvre.utils.media import MediaValidator
 from dvre.utils.types import MediaPoolItem
 
 log = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from dvre.builder import OutputBuilder
+from dvre.core.builder.builder import OutputBuilder
 from dvre.schemas.api import BuildConfig
 from dvre.utils.errors import ResolveError
 
@@ -26,10 +26,10 @@ class TestOutputBuilder:
         builder = OutputBuilder(pm)
 
         with (
-            patch("dvre.builder.ProjectService") as mock_ps,
-            patch("dvre.builder.MediaService") as mock_ms,
-            patch("dvre.builder.TimelineService") as mock_ts,
-            patch("dvre.builder.FusionService") as mock_fs,
+            patch("dvre.core.builder.builder.ProjectService") as mock_ps,
+            patch("dvre.core.builder.builder.MediaService") as mock_ms,
+            patch("dvre.core.builder.builder.TimelineService") as mock_ts,
+            patch("dvre.core.builder.builder.FusionService") as mock_fs,
         ):
             mock_ps_instance = mock_ps.return_value
             mock_ps_instance.export_project.return_value = "job_123"
@@ -51,10 +51,10 @@ class TestBuilderWithFusion:
         pm = MagicMock()
 
         with (
-            patch("dvre.builder.ProjectService"),
-            patch("dvre.builder.MediaService"),
-            patch("dvre.builder.TimelineService") as mock_ts,
-            patch("dvre.builder.FusionService"),
+            patch("dvre.core.builder.builder.ProjectService"),
+            patch("dvre.core.builder.builder.MediaService"),
+            patch("dvre.core.builder.builder.TimelineService") as mock_ts,
+            patch("dvre.core.builder.builder.FusionService"),
         ):
             mock_ts_instance = mock_ts.return_value
             mock_ts_instance.get_compound_info.side_effect = ResolveError(

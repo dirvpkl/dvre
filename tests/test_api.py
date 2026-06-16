@@ -8,7 +8,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient, ASGITransport
 
 from dvre.schemas.api import BuildConfig
-from dvre.server import create_app, get_project_manager
+from dvre.core.dependencies import get_project_manager
+from dvre.server import create_app
 
 
 @pytest.fixture
@@ -31,7 +32,7 @@ class TestBuildEndpoint:
 
         app.dependency_overrides[get_project_manager] = lambda: mock_pm
 
-        from dvre.builder import OutputBuilder
+        from dvre.core.builder.builder import OutputBuilder
 
         original_build = OutputBuilder.build
 
