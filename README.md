@@ -87,7 +87,7 @@ Builds are serialized — only one at a time (409 if busy).
         {
           "start_frame": 60,
           "end_frame": 180,
-          "comp_path": "C:/Comps/overlay.comp"
+          "compoition": "Composition { 	CurrentTime = 1010, 	RenderRange = { 0, 965 }, 	GlobalRange = { -2776, 385533 }, 	CurrentID = 4, 	HiQ = true, 	PlaybackUpdateMode = 0, 	StereoMode = false, 	Version = "DaVinci Resolve Studio 21.0.0.0047", 	SavedOutputs = 0, 	HeldTools = 0, 	DisabledTools = 0, 	LockedTools = 0, 	AudioOffset = 0, 	Resumable = true, 	OutputClips = { 	}, 	Tools = { 		MediaIn1 = Loader { 			ExtentSet = true, 			CustomData = { 				MediaProps = { 					MEDIA_AUDIO_TRACKS_DESC...."
         }
       ]
     }
@@ -111,7 +111,7 @@ Builds are serialized — only one at a time (409 if busy).
 | Field | Description |
 |-------|-------------|
 | `start_frame` / `end_frame` | Segment of previous compound to apply comp to |
-| `comp_path` | Absolute path to `.comp` file |
+| `composition` | Composition that is required to apply on the timeline |
 
 ### Gap-fill
 

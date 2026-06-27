@@ -5,7 +5,7 @@ Fusion clip management for DVRE.
 from __future__ import annotations
 
 import logging
-from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from dvre.editing.context import BuildContext
 from dvre.schemas.clips import FusionSegment
@@ -37,26 +37,25 @@ class FusionService:
             f"Created Fusion clip | frames={fusion_segment.start_frame}-{fusion_segment.end_frame}"
         )
 
-        if fusion_segment.comp_path is not None:
-            self._import_comp(result, fusion_segment.comp_path)
+        if fusion_segment.composition is not None:
+            self._import_comp(result, fusion_segment.composition)
 
         return result
 
     @staticmethod
-    def _import_comp(timeline_item: TimelineItem, comp_path: str) -> None:
+    def _import_comp(timeline_item: TimelineItem, composition: str) -> None:
         """Import a .comp file into the given Fusion clip."""
-        path = Path(comp_path)
+        f = NamedTemporaryFile(
+            mode="w", suffix=".comp", delete=False
+        )  # TODO: it stays forever
 
-        if not path.exists():
-            raise ResolveError(f"Fusion comp file not found: {comp_path}")
+        f.write(composition)
+        f.close()
 
-        if path.suffix.lower() != ".comp":
-            raise ResolveError(
-                f"Expected a .comp file, got '{path.suffix}': {comp_path}"
-            )
+        path = f.name
 
-        comp = timeline_item.ImportFusionComp(str(path))
+        comp = timeline_item.ImportFusionComp(path)
         if not comp:
-            raise ResolveError(f"Failed to import Fusion comp '{comp_path}'")
+            raise ResolveError(f"Failed to import Fusion comp '{path}'")
 
-        log.info(f"Imported Fusion comp: {comp_path}")
+        log.info(f"Imported Fusion comp: {path}")

@@ -36,6 +36,7 @@ class FusionSegment(BaseModel):
     end_frame: int = Field(
         ..., ge=0, description="End frame within the source compound"
     )
-    comp_path: str = Field(
-        ..., description="Absolute path to a .comp file to import into the Fusion clip"
+    composition: str = Field(
+        ...,
+        description="Data of the composition to import into the Fusion clip",
     )
