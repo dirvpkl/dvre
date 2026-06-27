@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from dvre.schemas.api import BuildConfig, TimelineSettings
-from dvre.schemas.clips import AudioClip, FusionClip, VideoClip
+from dvre.schemas.clips import AudioClip, FusionSegment, VideoClip
 from dvre.schemas.layers import BaseLayer, FusionLayer
 
 
@@ -17,7 +17,9 @@ class TestTimelineSettings:
         assert settings.super_scale is None
 
     def test_custom_values(self):
-        settings = TimelineSettings(width=3840, height=2160, frame_rate=29.97, super_scale=2)
+        settings = TimelineSettings(
+            width=3840, height=2160, frame_rate=29.97, super_scale=2
+        )
         assert settings.width == 3840
         assert settings.height == 2160
         assert settings.frame_rate == 29.97
@@ -44,13 +46,20 @@ class TestVideoClip:
     def test_invalid_track(self):
         with pytest.raises(ValidationError):
             VideoClip(
-                path=r"C:\test.mp4", track=0, timeline_start_frame=0, start_frame=0, end_frame=100
+                path=r"C:\test.mp4",
+                track=0,
+                timeline_start_frame=0,
+                start_frame=0,
+                end_frame=100,
             )
 
     def test_negative_frames(self):
         with pytest.raises(ValidationError):
             VideoClip(
-                path=r"C:\test.mp4", timeline_start_frame=-1, start_frame=0, end_frame=100
+                path=r"C:\test.mp4",
+                timeline_start_frame=-1,
+                start_frame=0,
+                end_frame=100,
             )
 
 
@@ -62,9 +71,9 @@ class TestAudioClip:
         assert clip.track == 1
 
 
-class TestFusionClip:
+class TestFusionSegment:
     def test_minimal(self):
-        clip = FusionClip(start_frame=0, end_frame=100, comp_path=r"C:\test.comp")
+        clip = FusionSegment(start_frame=0, end_frame=100, comp_path=r"C:\test.comp")
         assert clip.start_frame == 0
         assert clip.end_frame == 100
 
@@ -82,13 +91,13 @@ class TestBaseLayer:
 
 
 class TestFusionLayer:
-    def test_requires_fusion_clips(self, fusion_clips):
-        layer = FusionLayer(name="Test", fusion_clips=fusion_clips)
-        assert len(layer.fusion_clips) == 1
+    def test_requires_fusion_segments(self, fusion_segments):
+        layer = FusionLayer(name="Test", fusion_segments=fusion_segments)
+        assert len(layer.fusion_segments) == 1
 
-    def test_empty_fusion_clips_fails(self):
+    def test_empty_fusion_segments_fails(self):
         with pytest.raises(ValidationError):
-            FusionLayer(name="Test", fusion_clips=[])
+            FusionLayer(name="Test", fusion_segments=[])
 
 
 class TestBuildConfig:

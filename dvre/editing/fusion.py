@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 from dvre.editing.context import BuildContext
-from dvre.schemas.clips import FusionClip
+from dvre.schemas.clips import FusionSegment
 from dvre.utils.errors import ResolveError
 from dvre.utils.types import TimelineItem
 
@@ -23,22 +23,22 @@ class FusionService:
     def __init__(self, context: BuildContext):
         self.context = context
 
-    def create_fusion_clip(
+    def create_fusion_segment(
         self,
-        fusion_clip: FusionClip,
+        fusion_segment: FusionSegment,
         items: list[TimelineItem],
     ) -> TimelineItem:
         result = self.context.timeline.CreateFusionClip(items)
         if not result:
             raise ResolveError(
-                f"Failed to create Fusion clip at frames {fusion_clip.start_frame}-{fusion_clip.end_frame}"
+                f"Failed to create Fusion clip at frames {fusion_segment.start_frame}-{fusion_segment.end_frame}"
             )
         log.info(
-            f"Created Fusion clip | frames={fusion_clip.start_frame}-{fusion_clip.end_frame}"
+            f"Created Fusion clip | frames={fusion_segment.start_frame}-{fusion_segment.end_frame}"
         )
 
-        if fusion_clip.comp_path is not None:
-            self._import_comp(result, fusion_clip.comp_path)
+        if fusion_segment.comp_path is not None:
+            self._import_comp(result, fusion_segment.comp_path)
 
         return result
 

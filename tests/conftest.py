@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
 
 from dvre.schemas.api import BuildConfig, TimelineSettings
-from dvre.schemas.clips import AudioClip, FusionClip, VideoClip
+from dvre.schemas.clips import AudioClip, FusionSegment, VideoClip
 from dvre.schemas.layers import BaseLayer, FusionLayer
 
 TEST_MEDIA = Path(__file__).parent.parent / "test_media"
@@ -49,9 +50,9 @@ def audio_clips() -> list[AudioClip]:
 
 
 @pytest.fixture
-def fusion_clips() -> list[FusionClip]:
+def fusion_segments() -> list[FusionSegment]:
     return [
-        FusionClip(
+        FusionSegment(
             start_frame=50,
             end_frame=150,
             comp_path=str(TEST_MEDIA / "effect.comp"),
@@ -69,10 +70,10 @@ def base_layer(video_clips, audio_clips) -> BaseLayer:
 
 
 @pytest.fixture
-def fusion_layer(fusion_clips) -> FusionLayer:
+def fusion_layer(fusion_segments) -> FusionLayer:
     return FusionLayer(
         name="Effects",
-        fusion_clips=fusion_clips,
+        fusion_segments=fusion_segments,
     )
 
 
@@ -89,7 +90,9 @@ def build_config(timeline_settings, base_layer) -> BuildConfig:
 
 
 @pytest.fixture
-def build_config_with_fusion(timeline_settings, base_layer, fusion_layer) -> BuildConfig:
+def build_config_with_fusion(
+    timeline_settings, base_layer, fusion_layer
+) -> BuildConfig:
     return BuildConfig(
         project_name="Test Project Fusion",
         timeline_name="Test Timeline Fusion",

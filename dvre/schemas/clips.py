@@ -27,11 +27,15 @@ class AudioClip(_BaseClip):
     """Audio clip placement configuration."""
 
 
-class FusionClip(BaseModel):
+class FusionSegment(BaseModel):
     """A segment of the previous compound clip on which a Fusion composition is applied."""
 
-    start_frame: int = Field(..., ge=0, description="Start frame within the source compound")
-    end_frame: int = Field(..., ge=0, description="End frame within the source compound")
+    start_frame: int = Field(
+        ..., ge=0, description="Start frame within the source compound"
+    )
+    end_frame: int = Field(
+        ..., ge=0, description="End frame within the source compound"
+    )
     comp_path: str = Field(
         ..., description="Absolute path to a .comp file to import into the Fusion clip"
     )

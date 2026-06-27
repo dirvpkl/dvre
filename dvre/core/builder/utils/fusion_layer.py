@@ -25,13 +25,13 @@ def process_fusion_layer(runtime: BuildRuntime, layer: FusionLayer) -> None:
         )
 
     prev_end = runtime.compound_start
-    for fusion_clip in layer.fusion_clips:
-        if prev_end < fusion_clip.start_frame:
+    for fusion_segment in layer.fusion_segments:
+        if prev_end < fusion_segment.start_frame:
             runtime.timeline_service.place_clip(
                 runtime.compound_mpi,
                 1,
                 prev_end,
-                fusion_clip.start_frame,
+                fusion_segment.start_frame,
                 prev_end,
                 VIDEO_ONLY,
             )
@@ -39,13 +39,13 @@ def process_fusion_layer(runtime: BuildRuntime, layer: FusionLayer) -> None:
         item = runtime.timeline_service.place_clip(
             runtime.compound_mpi,
             1,
-            fusion_clip.start_frame,
-            fusion_clip.end_frame,
-            fusion_clip.start_frame,
+            fusion_segment.start_frame,
+            fusion_segment.end_frame,
+            fusion_segment.start_frame,
             VIDEO_ONLY,
         )
-        runtime.fusion_service.create_fusion_clip(fusion_clip, [item])
-        prev_end = fusion_clip.end_frame
+        runtime.fusion_service.create_fusion_segment(fusion_segment, [item])
+        prev_end = fusion_segment.end_frame
 
     if prev_end < runtime.compound_end:
         runtime.timeline_service.place_clip(
@@ -66,4 +66,4 @@ def process_fusion_layer(runtime: BuildRuntime, layer: FusionLayer) -> None:
         AUDIO_ONLY,
     )
 
-    log.info(f"[{layer.name}] Created {len(layer.fusion_clips)} fusion clips")
+    log.info(f"[{layer.name}] Created {len(layer.fusion_segments)} fusion clips")

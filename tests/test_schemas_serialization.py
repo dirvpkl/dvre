@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from dvre.schemas.api import BuildConfig
-from dvre.schemas.clips import AudioClip, FusionClip, VideoClip
+from dvre.schemas.clips import AudioClip, FusionSegment, VideoClip
 from dvre.schemas.layers import BaseLayer, FusionLayer
 
 
@@ -26,10 +26,10 @@ class TestBuildConfigJSON:
         assert data["layers"][0]["name"] == "Background"
         assert data["layers"][1]["name"] == "Effects"
 
-        fusion_clips = data["layers"][1]["fusion_clips"]
-        assert len(fusion_clips) == 1
-        assert fusion_clips[0]["start_frame"] == 50
-        assert fusion_clips[0]["end_frame"] == 150
+        fusion_segments = data["layers"][1]["fusion_segments"]
+        assert len(fusion_segments) == 1
+        assert fusion_segments[0]["start_frame"] == 50
+        assert fusion_segments[0]["end_frame"] == 150
 
     def test_roundtrip_via_json_string(self, build_config_with_fusion):
         json_str = build_config_with_fusion.model_dump_json(indent=2)
@@ -42,7 +42,7 @@ class TestBuildConfigJSON:
         assert isinstance(restored.layers[1], FusionLayer)
         assert isinstance(restored.layers[0].video_clips[0], VideoClip)
         assert isinstance(restored.layers[0].audio_clips[0], AudioClip)
-        assert isinstance(restored.layers[1].fusion_clips[0], FusionClip)
+        assert isinstance(restored.layers[1].fusion_segments[0], FusionSegment)
 
     def test_json_structure_documentation(self, build_config_with_fusion):
         """Show the JSON structure — useful for API docs."""

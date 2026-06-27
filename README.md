@@ -83,7 +83,7 @@ Builds are serialized — only one at a time (409 if busy).
     },
     {
       "name": "FX",
-      "fusion_clips": [
+      "fusion_segments": [
         {
           "start_frame": 60,
           "end_frame": 180,
@@ -106,7 +106,7 @@ Builds are serialized — only one at a time (409 if busy).
 | `timeline_start_frame` | Position on timeline |
 | `start_frame` / `end_frame` | In/out points in source |
 
-### Fusion clips
+### Fusion segments
 
 | Field | Description |
 |-------|-------------|
