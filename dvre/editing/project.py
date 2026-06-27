@@ -43,7 +43,7 @@ class ProjectService:
             "MarkIn": 0,  # ignoring because of SelectAllFrames=True
             "MarkOut": 0,  # ignoring because of SelectAllFrames=True
             "TargetDir": export_path,
-            "CustomName": export_name,
+            "CustomName": export_name,  # no extension required
             "UniqueFilenameStyle": 1,  # 0=Prefix, 1=Suffix
             "ReplaceExistingFilesInPlace": False,
             "ClipStartFrame": 0,

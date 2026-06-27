@@ -9,7 +9,13 @@ from typing import Literal
 
 from dvre.editing.context import BuildContext
 from dvre.utils.errors import ResolveError
-from dvre.utils.types import MediaPoolClipInfo, MediaPoolItem, MediaType, TimelineItem, TimelineClipInfo
+from dvre.utils.types import (
+    MediaPoolClipInfo,
+    MediaPoolItem,
+    MediaType,
+    TimelineClipInfo,
+    TimelineItem,
+)
 
 log = logging.getLogger(__name__)
 
@@ -38,13 +44,13 @@ class TimelineService:
                 raise ResolveError(f"Failed to add {track_type} track {next_index}")
 
     def place_clip(
-            self,
-            media_item: MediaPoolItem,
-            track: int,
-            start_frame: int,
-            end_frame: int,
-            timeline_start_frame: int,
-            media_type: MediaType,
+        self,
+        media_item: MediaPoolItem,
+        track: int,
+        start_frame: int,
+        end_frame: int,
+        timeline_start_frame: int,
+        media_type: MediaType,
     ) -> TimelineItem:
         """Place an already-imported media item onto the timeline."""
         log.info(
@@ -58,13 +64,15 @@ class TimelineService:
             "endFrame": end_frame,
             "mediaType": media_type,
             "trackIndex": track,
-            "recordFrame": self.context.timeline.GetStartFrame()
-                           + timeline_start_frame,
+            "recordFrame": self.context.timeline.GetStartFrame() + timeline_start_frame,
         }
 
+        # davinci crash on `AppendToTimeline` usually causes due wrong clip_info structure
         result = self.context.media_pool.AppendToTimeline([clip_info])
         if not result:
-            raise ResolveError(f"Failed to place a clip {media_item}: {start_frame}/{end_frame} on {timeline_start_frame} on track {track}")
+            raise ResolveError(
+                f"Failed to place a clip {media_item}: {start_frame}/{end_frame} on {timeline_start_frame} on track {track}"
+            )
 
         log.debug(f"Clip placed on track {track}")
         return result[0]

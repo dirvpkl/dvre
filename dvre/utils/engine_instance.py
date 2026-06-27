@@ -50,6 +50,10 @@ def get_resolve(timeout: int = 120) -> Resolve:
     if RESOLVE_LIB not in sys.path:
         sys.path.append(RESOLVE_LIB)
 
+    # python version (try all the available versions. check via `py --list`) (as a last resort, use procmon to monitor the dll importing)
+    # davinci preferences - enable the scripting
+    # studio version required
+    # `-nogui` is not the reason (works in gui and no gui version either)
     import DaVinciResolveScript as dvr  # type: ignore
 
     start = time.time()
