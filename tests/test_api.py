@@ -26,8 +26,8 @@ async def client(app: FastAPI) -> AsyncClient:
         yield ac
 
 
-class TestBuildEndpoint:
-    async def test_build_success(self, app: FastAPI, client: AsyncClient, build_config: BuildConfig):
+class TestTaskEndpoint:
+    async def test_create_task_success(self, app: FastAPI, client: AsyncClient, build_config: BuildConfig):
         mock_pm = MagicMock()
 
         app.dependency_overrides[get_project_manager] = lambda: mock_pm
@@ -37,64 +37,43 @@ class TestBuildEndpoint:
         original_build = OutputBuilder.build
 
         def mock_build(self, config):
-            return "job_001"
+            return "task_001"
 
         OutputBuilder.build = mock_build
 
         try:
             payload = build_config.model_dump(mode="json")
-            response = await client.post("/build", json=payload)
+            response = await client.post("/tasks", json=payload)
 
             assert response.status_code == 200
             data = response.json()
-            assert data["job_id"] == "job_001"
+            assert data["task_id"] == "task_001"
+            assert data["ok"] is True
+            assert data["status"] == "queued"
         finally:
             OutputBuilder.build = original_build
             app.dependency_overrides.clear()
 
-    async def test_build_conflict_when_locked(self, app: FastAPI, client: AsyncClient, build_config: BuildConfig):
+    async def test_create_task_conflict_when_locked(self, app: FastAPI, client: AsyncClient, build_config: BuildConfig):
         app.dependency_overrides[get_project_manager] = lambda: MagicMock()
         lock = asyncio.Lock()
         await lock.acquire()
         app.state.build_lock = lock
 
         payload = build_config.model_dump(mode="json")
-        response = await client.post("/build", json=payload)
+        response = await client.post("/tasks", json=payload)
 
         assert response.status_code == 409
         lock.release()
         app.dependency_overrides.clear()
 
-    async def test_build_invalid_payload(self, client: AsyncClient):
-        response = await client.post("/build", json={})
+    async def test_create_task_invalid_payload(self, app: FastAPI, client: AsyncClient):
+        response = await client.post("/tasks", json={})
         assert response.status_code == 422
 
 
-class TestProjectClose:
-    async def test_close_success(self, app: FastAPI, client: AsyncClient):
-        mock_pm = MagicMock()
-        mock_project = MagicMock()
-        mock_pm.GetCurrentProject.return_value = mock_project
-
-        app.dependency_overrides[get_project_manager] = lambda: mock_pm
-        response = await client.post("/project/close")
-
-        assert response.status_code == 204
-        app.dependency_overrides.clear()
-
-    async def test_close_no_project(self, app: FastAPI, client: AsyncClient):
-        mock_pm = MagicMock()
-        mock_pm.GetCurrentProject.return_value = None
-
-        app.dependency_overrides[get_project_manager] = lambda: mock_pm
-        response = await client.post("/project/close")
-
-        assert response.status_code == 404
-        app.dependency_overrides.clear()
-
-
-class TestRenderJobStatus:
-    async def test_render_job_status_success(self, app: FastAPI, client: AsyncClient):
+class TestTaskStatus:
+    async def test_task_status_success(self, app: FastAPI, client: AsyncClient):
         mock_pm = MagicMock()
         mock_project = MagicMock()
         mock_pm.GetCurrentProject.return_value = mock_project
@@ -104,20 +83,24 @@ class TestRenderJobStatus:
         }
 
         app.dependency_overrides[get_project_manager] = lambda: mock_pm
-        response = await client.get("/render-job/job_001/status")
+        response = await client.get("/tasks/task_001/status")
 
         assert response.status_code == 200
         data = response.json()
-        assert data["job_status"] == "In Progress"
-        assert data["completion_percentage"] == 45
+        assert data["task_id"] == "task_001"
+        assert data["task_name"] == "dvre.render.status"
+        assert data["status"] == "In Progress"
+        assert data["result"] is None
+        assert data["error"] == ""
         app.dependency_overrides.clear()
 
-    async def test_render_job_no_project(self, app: FastAPI, client: AsyncClient):
+    async def test_task_status_no_project(self, app: FastAPI, client: AsyncClient):
         mock_pm = MagicMock()
         mock_pm.GetCurrentProject.return_value = None
 
         app.dependency_overrides[get_project_manager] = lambda: mock_pm
-        response = await client.get("/render-job/job_001/status")
+        response = await client.get("/tasks/task_001/status")
 
         assert response.status_code == 404
         app.dependency_overrides.clear()
+

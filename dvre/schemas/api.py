@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from dvre.schemas.layers import BaseLayer, FusionLayer
 
@@ -45,19 +45,25 @@ class BuildConfig(BaseModel):
     )
 
 
-class BuildResponse(BaseModel):
-    """Response from the build endpoint."""
+class OkResponse(BaseModel):
+    """Generic OK response."""
 
-    job_id: str
+    ok: bool
 
 
-class RenderJobStatus(BaseModel):
-    """Status of a DaVinci Resolve render job."""
+class TaskQueuedResponse(BaseModel):
+    """Response when a task is queued."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    ok: bool
+    task_id: str
+    status: str
 
-    job_status: str = Field(validation_alias="JobStatus")
-    completion_percentage: int = Field(validation_alias="CompletionPercentage")
-    estimated_time_remaining_ms: int | None = Field(None, validation_alias="EstimatedTimeRemainingInMs")
-    time_taken_to_render_ms: int | None = Field(None, validation_alias="TimeTakenToRenderInMs")
-    error: str | None = Field(None, validation_alias="Error")
+
+class TaskStatusResponse(BaseModel):
+    """Status of a task."""
+
+    task_id: str
+    task_name: str
+    status: str
+    result: Any
+    error: str

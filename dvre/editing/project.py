@@ -70,12 +70,12 @@ class ProjectService:
         }
 
         self.context.project.SetRenderSettings(settings)
-        job_id = self.context.project.AddRenderJob()
-        self.context.project.StartRendering([job_id], isInteractiveMode=False)
-        return job_id
+        task_id = self.context.project.AddRenderJob()
+        self.context.project.StartRendering([task_id], isInteractiveMode=False)
+        return task_id
 
-    def get_render_job_status(self, job_id):
-        return self.context.project.GetRenderJobStatus(job_id)
+    def get_render_task_status(self, task_id):
+        return self.context.project.GetRenderJobStatus(task_id)
 
     def close_project(self):
         log.debug("Closing the project")

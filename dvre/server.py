@@ -12,9 +12,8 @@ from typing import AsyncGenerator
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from dvre.routers.build import router as build_router
 from dvre.routers.project import router as project_router
-from dvre.routers.render import router as render_router
+from dvre.routers.tasks import router as tasks_router
 
 log = logging.getLogger(__name__)
 
@@ -65,12 +64,13 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(build_router)
     app.include_router(project_router)
-    app.include_router(render_router)
+    app.include_router(tasks_router)
 
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
+
+
