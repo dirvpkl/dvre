@@ -23,6 +23,11 @@ packages = ["dvre"]
 [tool.isort]
 profile = "black"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+
 [dependency-groups]
 dev = [
     "black>=26.3.1",
