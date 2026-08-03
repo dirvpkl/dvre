@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,9 +24,7 @@ def get_task_status(
     status = (
         "PENDING"
         if job_status == "Rendering"
-        else "SUCCESS"
-        if job_status == "Complete"
-        else "FAILURE"
+        else "SUCCESS" if job_status == "Complete" else "FAILURE"
     )
     return TaskStatusResponse(
         task_id=task_id,

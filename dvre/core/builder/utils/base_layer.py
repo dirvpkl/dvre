@@ -27,7 +27,9 @@ def process_base_layer(runtime: BuildRuntime, layer: BaseLayer) -> None:
         _fill_compound_gaps(runtime, layer.audio_clips, AUDIO_ONLY)
 
     for clip in layer.video_clips:
-        media_item = runtime.media_service.import_media(clip.path, runtime.video_validator)
+        media_item = runtime.media_service.import_media(
+            clip.path, runtime.video_validator
+        )
         runtime.timeline_service.place_clip(
             media_item,
             clip.track,
@@ -39,7 +41,9 @@ def process_base_layer(runtime: BuildRuntime, layer: BaseLayer) -> None:
     log.info(f"[{layer.name}] Placed {len(layer.video_clips)} video clips")
 
     for clip in layer.audio_clips:
-        media_item = runtime.media_service.import_media(clip.path, runtime.audio_validator)
+        media_item = runtime.media_service.import_media(
+            clip.path, runtime.audio_validator
+        )
         runtime.timeline_service.place_clip(
             media_item,
             clip.track,
@@ -52,7 +56,11 @@ def process_base_layer(runtime: BuildRuntime, layer: BaseLayer) -> None:
 
 
 def _fill_compound_gaps(runtime: BuildRuntime, clips: list, media_type: int) -> None:
-    if runtime.compound_mpi is None or runtime.compound_start is None or runtime.compound_end is None:
+    if (
+        runtime.compound_mpi is None
+        or runtime.compound_start is None
+        or runtime.compound_end is None
+    ):
         return
 
     track_clips = sorted(

@@ -11,7 +11,7 @@ import uvicorn
 from dotenv import load_dotenv
 
 load_dotenv()
-from dvre.utils.logger import setup_logging
+from dvre.utils.logger import setup_logging  # noqa: E402
 
 setup_logging()
 log = logging.getLogger(__name__)

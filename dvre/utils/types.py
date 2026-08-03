@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 MediaType = Literal[1, 2]
 VIDEO_ONLY: MediaType = 1
@@ -15,11 +15,11 @@ if TYPE_CHECKING:
         MediaPoolItem,
         Project,
         ProjectManager,
+        RenderSettings,
         Resolve,
         Timeline,
         TimelineClipInfo,
         TimelineItem,
-        RenderSettings,
     )
 else:
     MediaPool = object

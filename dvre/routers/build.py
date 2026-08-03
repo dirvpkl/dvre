@@ -13,9 +13,12 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/build", tags=["build"])
 
 
-@router.post("", status_code=200,
-             description="Creates and initializes a project, builds and manages the timeline, validates and processes media assets, then saves and exports the final output.\n"
-                         "Due to DaVinci Resolve\u2019s lack of reliable multithreading/async support in this context, the entire pipeline is executed sequentially in a single thread.")
+@router.post(
+    "",
+    status_code=200,
+    description="Creates and initializes a project, builds and manages the timeline, validates and processes media assets, then saves and exports the final output.\n"
+    "Due to DaVinci Resolve\u2019s lack of reliable multithreading/async support in this context, the entire pipeline is executed sequentially in a single thread.",
+)
 async def build(
     request: Request, config: BuildConfig, project_manager=Depends(get_project_manager)
 ) -> BuildResponse:

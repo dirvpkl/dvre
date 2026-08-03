@@ -4,15 +4,17 @@ Shared Resolve build context.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
 from dvre.schemas.api import TimelineSettings
 from dvre.utils.errors import ResolveError
 from dvre.utils.types import (
     MediaPool,
     Project,
-    ProjectManager as ResolveProjectManager,
+)
+from dvre.utils.types import ProjectManager as ResolveProjectManager
+from dvre.utils.types import (
     Timeline,
 )
 

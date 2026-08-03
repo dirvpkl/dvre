@@ -69,4 +69,3 @@ def get_resolve(timeout: int = 120) -> Resolve:
         log.debug("Waiting for Resolve...")
 
     raise TimeoutError(f"Resolve didn't start in {timeout} seconds")
-

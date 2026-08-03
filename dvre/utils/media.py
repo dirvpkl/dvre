@@ -3,6 +3,7 @@ import subprocess
 from dataclasses import dataclass
 from typing import Protocol
 
+
 def _get_video_meta(path: str) -> dict[str, int | float]:
     result = subprocess.run(
         [

@@ -27,9 +27,9 @@ class TestOutputBuilder:
 
         with (
             patch("dvre.core.builder.builder.ProjectService") as mock_ps,
-            patch("dvre.core.builder.builder.MediaService") as mock_ms,
-            patch("dvre.core.builder.builder.TimelineService") as mock_ts,
-            patch("dvre.core.builder.builder.FusionService") as mock_fs,
+            patch("dvre.core.builder.builder.MediaService"),
+            patch("dvre.core.builder.builder.TimelineService"),
+            patch("dvre.core.builder.builder.FusionService"),
         ):
             mock_ps_instance = mock_ps.return_value
             mock_ps_instance.export_project.return_value = "job_123"
